@@ -24,7 +24,7 @@ class AuthController {
 
         User::create($nombre, $email, $password);
 
-        header("Location: /kronet/public/login");
+        echo "Registrado !";
     }
 
     public function login() {
