@@ -21,21 +21,22 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
         return;
     }
 
-    // Simulación backend (TEMPORAL)
-    if (email !== "test@test.com") {
-        // Alt2: usuario no registrado
-        errorMsg.innerHTML = 'No existe una cuenta con ese email. <a href="/register">Regístrate</a>';
-        return;
-    }
+    fetch("/kronet/public/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+        })
+        .then(res => res.text())
+        .then(data => {
+            if (data.includes("correcto")) {
+                errorMsg.style.color = "green";
+                errorMsg.textContent = "Login correcto";
 
-    if (password !== "1234") {
-        // Alt1: credenciales incorrectas
-        errorMsg.textContent = "Email o contraseña incorrectos";
-        return;
-    }
-
-    // Login correcto (flujo principal)
-    errorMsg.style.color = "green";
-    errorMsg.textContent = "Login correcto";
-
+                window.location.href = "/kronet/public/";
+            } else {
+                errorMsg.textContent = data;
+            }
+    });
 });

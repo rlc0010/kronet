@@ -6,7 +6,7 @@ class User {
         global $pdo;
         $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
         $stmt->execute([$email]);
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public static function create($nombre, $email, $password) {
