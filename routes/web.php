@@ -5,7 +5,7 @@ require_once '../app/controllers/UserController.php';
 $uri = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
 
-$userController = new UserController();
+$userController = new AuthController();
 
 // HOME
 if ($uri == '/kronet/public/' || $uri == '/kronet/public') {
