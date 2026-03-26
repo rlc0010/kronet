@@ -19,6 +19,6 @@
 </form>
 
 <p id="errorMsg" style="color:red;"></p>
-
+<script src="/kronet/public/assets/js/login.js"></script>
 </body>
 </html>
