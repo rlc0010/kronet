@@ -16,15 +16,21 @@ class AuthController {
         $nombre = $_POST['nombre'] ?? null;
         $email = $_POST['email'] ?? null;
         $password = $_POST['password'] ?? null;
-
+    
+        header('Content-Type: application/json');
+    
         if (!$nombre || !$email || !$password) {
-            echo "Campos obligatorios";
+            echo json_encode(['ok' => false, 'msg' => 'Campos obligatorios']);
             return;
         }
-
+    
+        if (User::findByEmail($email)) {
+            echo json_encode(['ok' => false, 'msg' => 'El email ya está registrado']);
+            return;
+        }
+    
         User::create($nombre, $email, $password);
-
-        echo "Registrado !";
+        echo json_encode(['ok' => true]);
     }
 
     public function login() {
