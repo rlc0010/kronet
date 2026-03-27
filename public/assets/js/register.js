@@ -16,17 +16,15 @@ document.getElementById("registerForm").addEventListener("submit", function(e) {
 
     fetch("/kronet/public/register", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
     })
-    .then(res => res.text())
+    .then(res => res.json())
     .then(data => {
-        if (data.includes("registrado") || data.includes("correcto")) {
+        if (data.ok) {
             window.location.href = "/kronet/public/login";
         } else {
-            errorMsg.textContent = data;
+            errorMsg.textContent = data.msg;
         }
     });
 });
