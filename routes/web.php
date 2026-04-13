@@ -51,3 +51,21 @@ if ($uri == '/kronet/public/logout') {
     header("Location: /kronet/public/login");
     exit;
 }
+
+
+
+// Incluimos el controlador de anuncios
+require_once '../app/controllers/AnuncioController.php';
+$anuncioController = new AnuncioController();
+
+// EDITAR ANUNCIO - Muestra el formulario con los datos actuales
+if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/editar$/', $uri, $matches) && $method == 'GET') {
+    requireLogin();
+    $anuncioController->showEditar($matches[1]);
+}
+
+// EDITAR ANUNCIO - Procesa el formulario y guarda los cambios
+if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/editar$/', $uri, $matches) && $method == 'POST') {
+    requireLogin();
+    $anuncioController->editar($matches[1]);
+}
