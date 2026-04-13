@@ -2,7 +2,12 @@
 require_once '../config/conexion_db.php';
 require_once '../app/controllers/UserController.php';
 
-$uri = $_SERVER['REQUEST_URI'];
+
+// strtok elimina los parámetros GET de la URI (todo lo que va después del ?)
+// Ejemplo: /anuncios/buscar?busqueda=guitarra → /anuncios/buscar
+// Así el router reconoce correctamente la ruta
+// Eliminamos los parámetros GET de la URI para que las rutas funcionen correctamente
+$uri = strtok($_SERVER['REQUEST_URI'], '?');
 $method = $_SERVER['REQUEST_METHOD'];
 
 function requireLogin() {
@@ -68,4 +73,10 @@ if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/editar$/', $uri, $matches) 
 if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/editar$/', $uri, $matches) && $method == 'POST') {
     requireLogin();
     $anuncioController->editar($matches[1]);
+}
+
+// BUSCAR Y FILTRAR ANUNCIOS
+if ($uri == '/kronet/public/anuncios/buscar' && $method == 'GET') {
+    requireLogin();
+    $anuncioController->showBuscar();
 }

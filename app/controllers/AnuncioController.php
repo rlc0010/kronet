@@ -84,4 +84,19 @@ class AnuncioController {
         Anuncio::delete($id);
         echo json_encode(['ok' => true, 'msg' => 'Anuncio eliminado correctamente']);
     }
+
+    //BUSCAR Y FILTRAR ANUNCIO
+    // Muestra la página de búsqueda y procesa los filtros
+    public function showBuscar() {
+        // Recogemos los parámetros y convertimos cadenas vacías a null
+        $busqueda = !empty($_GET['busqueda']) ? $_GET['busqueda'] : null;
+        $tipo_anuncio = !empty($_GET['tipo_anuncio']) ? $_GET['tipo_anuncio'] : null;
+        $categoria = !empty($_GET['categoria']) ? $_GET['categoria'] : null;
+
+        $anuncios = Anuncio::search($busqueda, $tipo_anuncio, $categoria);
+
+        require '../app/views/anuncios/buscar.php';
+    }
 }
+
+

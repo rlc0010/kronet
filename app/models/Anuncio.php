@@ -48,4 +48,43 @@ class Anuncio {
         $stmt = $pdo->prepare("DELETE FROM anuncios WHERE id_anuncio = ?");
         $stmt->execute([$id_anuncio]);
     }
+
+
+
+    
+//BUSCAR ANUNCIO
+// Busca anuncios por palabra clave y filtros opcionales
+// Se usa en la página de búsqueda
+    public static function search($busqueda = null, $tipo_anuncio = null, $categoria = null) {
+        global $pdo;
+
+        // Empezamos con una query base
+        $sql = "SELECT * FROM anuncios WHERE estado = 'activo'";
+        $params = [];
+
+        // Si hay palabra clave buscamos en título y descripción
+        if ($busqueda) {
+            $sql .= " AND (titulo LIKE ? OR descripcion LIKE ?)";
+            $params[] = "%$busqueda%";
+            $params[] = "%$busqueda%";
+        }
+
+        // Si hay filtro de tipo (oferta/demanda) lo aplicamos
+        if ($tipo_anuncio) {
+            $sql .= " AND tipo_anuncio = ?";
+            $params[] = $tipo_anuncio;
+        }
+
+        // Si hay filtro de categoría lo aplicamos
+        if ($categoria) {
+            $sql .= " AND categoria = ?";
+            $params[] = $categoria;
+        }
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
+
+
