@@ -1,6 +1,6 @@
 <?php
 // Necesitamos la conexión a la BD ($pdo)
-require_once '../config/conexion_db.php';
+require_once __DIR__ . '/../../config/conexion_db.php';
 
 class Anuncio {
 
@@ -15,9 +15,10 @@ class Anuncio {
 
     // Devuelve todos los anuncios de un usuario concreto
     // Se usa para mostrar "Mis anuncios" en el perfil
+    // Ordenamos por fecha descendente para ver primero los más recientes
     public static function findByUsuario($id_usuario) {
         global $pdo;
-        $stmt = $pdo->prepare("SELECT * FROM anuncios WHERE id_usuario = ?");
+        $stmt = $pdo->prepare("SELECT * FROM anuncios WHERE id_usuario = ? ORDER BY fecha_publicacion DESC");
         $stmt->execute([$id_usuario]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -49,16 +50,13 @@ class Anuncio {
         $stmt->execute([$id_anuncio]);
     }
 
-
-
-    
-//BUSCAR ANUNCIO
-// Busca anuncios por palabra clave y filtros opcionales
-// Se usa en la página de búsqueda
+    // Busca anuncios por palabra clave y filtros opcionales
+    // Se usa en la página de búsqueda
+    // Los parámetros son opcionales: si vienen a null no se aplica ese filtro
     public static function search($busqueda = null, $tipo_anuncio = null, $categoria = null) {
         global $pdo;
 
-        // Empezamos con una query base
+        // Empezamos con una query base que solo devuelve anuncios activos
         $sql = "SELECT * FROM anuncios WHERE estado = 'activo'";
         $params = [];
 
@@ -81,10 +79,11 @@ class Anuncio {
             $params[] = $categoria;
         }
 
+        // Los destacados aparecen primero, luego ordenamos por fecha descendente
+        $sql .= " ORDER BY destacado DESC, fecha_publicacion DESC";
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
-
-
