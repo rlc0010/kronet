@@ -22,4 +22,17 @@ class User {
 
         return $stmt->execute([$nombre, $email, $hash]);
     }
+
+   public static function updatePerfil($id, $nombre, $email) {
+    global $pdo;
+
+    $stmt = $pdo->prepare("
+        UPDATE usuarios
+        SET nombre = ?, email = ?
+        WHERE id_usuario = ?
+    ");
+
+    return $stmt->execute([$nombre, $email, $id]);
+}
+ 
 }
