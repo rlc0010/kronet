@@ -86,4 +86,18 @@ class Anuncio {
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    public static function toggleEstado($id) {
+        global $pdo;
+
+        $stmt = $pdo->prepare("
+        UPDATE anuncios
+        SET estado = IF(estado='activa','inactiva','activa')
+        WHERE id_anuncio = ?
+        ");
+
+    return $stmt->execute([$id]);
+    }
+
 }
