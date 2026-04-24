@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../config/conexion_db.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/AnuncioController.php';
-
+require_once __DIR__ . '/../app/controllers/PerfilController.php';
 // strtok elimina los parámetros GET de la URI (todo lo que va después del ?)
 // Ejemplo: /anuncios/buscar?busqueda=guitarra → /anuncios/buscar
 // Así el router reconoce correctamente la ruta
@@ -22,6 +22,7 @@ function requireLogin() {
 // Instanciamos los controladores
 $userController    = new AuthController();
 $anuncioController = new AnuncioController();
+$perfilController = new PerfilController();
 
 // =====================
 // HOME
@@ -120,4 +121,12 @@ if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/editar$/', $uri, $matches) 
 if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/eliminar$/', $uri, $matches) && $method == 'POST') {
     requireLogin();
     $anuncioController->eliminar($matches[1]);
+}
+
+// =====================
+// PERFIL
+// =====================
+if ($uri == '/kronet/public/perfil' && $method == 'GET') {
+    requireLogin();
+    $perfilController->verPerfil();
 }
