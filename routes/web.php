@@ -121,3 +121,28 @@ if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/eliminar$/', $uri, $matches
     requireLogin();
     $anuncioController->eliminar($matches[1]);
 }
+
+
+// =====================
+// INTERCAMBIOS
+// =====================
+require_once __DIR__ . '/../app/controllers/IntercambioController.php';
+$intercambioController = new IntercambioController();
+
+// Muestra las ofertas recibidas
+if ($uri == '/kronet/public/intercambios/ofertas-recibidas' && $method == 'GET') {
+    requireLogin();
+    $intercambioController->ofertasRecibidas();
+}
+
+// Acepta una oferta
+if (preg_match('/^\/kronet\/public\/intercambios\/(\d+)\/aceptar$/', $uri, $matches) && $method == 'POST') {
+    requireLogin();
+    $intercambioController->aceptar($matches[1]);
+}
+
+// Rechaza una oferta
+if (preg_match('/^\/kronet\/public\/intercambios\/(\d+)\/rechazar$/', $uri, $matches) && $method == 'POST') {
+    requireLogin();
+    $intercambioController->rechazar($matches[1]);
+}
