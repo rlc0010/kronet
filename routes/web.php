@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../config/conexion_db.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/AnuncioController.php';
+require_once __DIR__ . '/../app/controllers/MensajeController.php';
 
 // strtok elimina los parámetros GET de la URI (todo lo que va después del ?)
 // Ejemplo: /anuncios/buscar?busqueda=guitarra → /anuncios/buscar
@@ -22,6 +23,7 @@ function requireLogin() {
 // Instanciamos los controladores
 $userController    = new AuthController();
 $anuncioController = new AnuncioController();
+$mensajeController = new MensajeController();
 
 // =====================
 // HOME
@@ -35,6 +37,7 @@ if ($uri == '/kronet/public/' || $uri == '/kronet/public') {
         echo "<a href='/kronet/public/anuncios/crear'>Publicar anuncio</a> | ";
         echo "<a href='/kronet/public/anuncios/mis-anuncios'>Mis anuncios</a> | ";
         echo "<a href='/kronet/public/anuncios/buscar'>Buscar anuncios</a> | ";
+        echo "<a href='/kronet/public/mensajes'>Mis mensajes</a> | ";
         echo "<a href='/kronet/public/logout'>Cerrar sesión</a>";
     } else {
         echo "<a href='/kronet/public/login'>Login</a><br>";
@@ -120,4 +123,20 @@ if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/editar$/', $uri, $matches) 
 if (preg_match('/^\/kronet\/public\/anuncios\/(\d+)\/eliminar$/', $uri, $matches) && $method == 'POST') {
     requireLogin();
     $anuncioController->eliminar($matches[1]);
+}
+
+// ========
+// MENSAJES
+// ========
+
+if ($uri == '/kronet/public/mensaje/enviar' && $method == 'POST') {
+    requireLogin();
+    $mensajeController->enviar();
+}
+
+// BANDEJA MENSAJES
+
+if ($uri == '/kronet/public/mensajes' && $method == 'GET') {
+    requireLogin();
+    $mensajeController->bandeja();
 }
