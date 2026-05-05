@@ -6,14 +6,13 @@ require_once __DIR__ . '/../models/Intercambio.php';
 class PerfilController {
 
     public function verPerfil() {
-        session_start();
 
         // Comprobar login
         if (!isset($_SESSION['id_usuario'])) {
             $error = "Debes iniciar sesión";
             $usuario = [];
             $historial = [];
-            require __DIR__ . '/../views/verPerfil.php';
+            require __DIR__ . '/../views/perfil/verPerfil.php';
             return;
         }
 
@@ -34,6 +33,6 @@ class PerfilController {
         $usuario = $usuario ?? [];
         $historial = $historial ?? [];
 
-        require __DIR__ . '/../views/verPerfil.php';
+        require __DIR__ . '/../views/perfil/verPerfil.php';
     }
 }
