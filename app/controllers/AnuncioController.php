@@ -126,4 +126,10 @@ class AnuncioController {
         // Cargamos la vista pasándole los resultados
         require __DIR__ . '/../views/anuncios/buscar.php';
     }
+
+
+    public function cambiarEstado() {
+        Anuncio::toggleEstado($_POST['id']);
+    }
+
 }

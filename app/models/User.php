@@ -9,6 +9,13 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public static function findById($id) {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public static function create($nombre, $email, $password) {
         global $pdo;
 
@@ -22,4 +29,17 @@ class User {
 
         return $stmt->execute([$nombre, $email, $hash]);
     }
+
+   public static function updatePerfil($id, $nombre, $email) {
+    global $pdo;
+
+    $stmt = $pdo->prepare("
+        UPDATE usuarios
+        SET nombre = ?, email = ?
+        WHERE id_usuario = ?
+    ");
+
+    return $stmt->execute([$nombre, $email, $id]);
+}
+ 
 }
