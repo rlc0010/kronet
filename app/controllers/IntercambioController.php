@@ -7,7 +7,7 @@ class IntercambioController {
     public function ofertasRecibidas() {
         $intercambios = Intercambio::findOfertasRecibidas($_SESSION['id_usuario']);
         require __DIR__ . '/../views/intercambios/ofertas_recibidas.php';
-
+    }
     public function solicitar() {
         header('Content-Type: application/json');
 
@@ -89,6 +89,6 @@ class IntercambioController {
         $resultado = Intercambio::rechazar($id);
         echo json_encode(['ok' => $resultado, 'msg' => 'Oferta rechazada correctamente']);
     }
-}
+
 }
 
