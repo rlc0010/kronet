@@ -90,4 +90,5 @@ class IntercambioController {
         echo json_encode(['ok' => $resultado, 'msg' => 'Oferta rechazada correctamente']);
     }
 }
+}
 
