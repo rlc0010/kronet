@@ -5,7 +5,7 @@ class IntercambioController {
 
     // Muestra las ofertas recibidas en los anuncios del usuario logueado
     public function ofertasRecibidas() {
-        $intercambios = Intercambio::findOfertasRecibidas($_SESSION['user']);
+        $intercambios = Intercambio::findOfertasRecibidas($_SESSION['id_usuario']);
         require __DIR__ . '/../views/intercambios/ofertas_recibidas.php';
     }
 

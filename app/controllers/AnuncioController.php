@@ -16,7 +16,7 @@ class AnuncioController {
         header('Content-Type: application/json');
 
         // Recogemos los datos del formulario, null si no vienen
-        $id_usuario       = $_SESSION['user'];
+        $id_usuario       = $_SESSION['id_usuario'];
         $titulo           = $_POST['titulo'] ?? null;
         $descripcion      = $_POST['descripcion'] ?? null;
         $tipo_anuncio     = $_POST['tipo_anuncio'] ?? null;
@@ -47,7 +47,7 @@ class AnuncioController {
 
         // Comprobamos que el anuncio pertenece al usuario logueado
         // para que nadie pueda editar anuncios ajenos
-        if ($anuncio['id_usuario'] != $_SESSION['user']) {
+        if ($anuncio['id_usuario'] != $_SESSION['id_usuario']) {
             header("Location: /kronet/public/");
             exit;
         }
@@ -93,7 +93,7 @@ class AnuncioController {
         }
 
         // Comprobamos que el anuncio pertenece al usuario logueado
-        if ($anuncio['id_usuario'] != $_SESSION['user']) {
+        if ($anuncio['id_usuario'] != $_SESSION['id_usuario']) {
             echo json_encode(['ok' => false, 'msg' => 'No tienes permiso para eliminar este anuncio']);
             return;
         }
@@ -106,7 +106,7 @@ class AnuncioController {
     // Muestra todos los anuncios publicados por el usuario logueado
     public function misAnuncios() {
         // Obtenemos los anuncios del usuario de la BD
-        $anuncios = Anuncio::findByUsuario($_SESSION['user']);
+        $anuncios = Anuncio::findByUsuario($_SESSION['id_usuario']);
 
         // Cargamos la vista pasándole el array de anuncios
         require __DIR__ . '/../views/anuncios/mis_anuncios.php';
@@ -133,3 +133,4 @@ class AnuncioController {
     }
 
 }
+ 

@@ -1,5 +1,5 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 require_once '../app/models/User.php';
 
@@ -51,9 +51,8 @@ class AuthController {
             //CLAVE: usar id_usuario (coherente con todo el sistema)
             $_SESSION['id_usuario'] = $user['id_usuario'];
 
-            // Redirigir al inicio
-            header("Location: /kronet/public/");
-            exit;
+            // El JS busca la palabra "correcto" para redirigir
+            echo "login correcto";
 
         } else {
             echo "Credenciales incorrectas";
