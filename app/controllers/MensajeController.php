@@ -12,12 +12,12 @@ class MensajeController
             session_start();
         }
 
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_SESSION['id_usuario'])) {
             echo "Debes iniciar sesión";
             return;
         }
 
-        $emisor = $_SESSION['user'];
+        $emisor = $_SESSION['id_usuario'];
         $receptor = $_POST['id_receptor'] ?? null;
         $texto = trim($_POST['mensaje'] ?? '');
 
@@ -51,12 +51,12 @@ class MensajeController
             session_start();
         }
 
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_SESSION['id_usuario'])) {
             echo "Debes iniciar sesión";
             return;
         }
 
-        $usuario = $_SESSION['user'];
+        $usuario = $_SESSION['id_usuario'];
 
         // De momento mostramos conversación con TODOS (simple)
         $mensajes = Mensaje::obtenerRecibidos($usuario);

@@ -3,13 +3,17 @@ require_once __DIR__ . '/../models/Intercambio.php';
 require_once __DIR__ . '/../models/Anuncio.php';
 
 class IntercambioController {
+    // Muestra las ofertas recibidas en los anuncios del usuario logueado
+    public function ofertasRecibidas() {
+        $intercambios = Intercambio::findOfertasRecibidas($_SESSION['id_usuario']);
+        require __DIR__ . '/../views/intercambios/ofertas_recibidas.php';
 
     public function solicitar() {
         header('Content-Type: application/json');
 
         try {
             $idAnuncio = $_POST['id_anuncio'] ?? null;
-            $idSolicitante = $_SESSION['user'];
+            $idSolicitante = $_SESSION['id_usuario'];
 
             if (!$idAnuncio) {
                 throw new Exception('Anuncio inválido');
@@ -44,11 +48,6 @@ class IntercambioController {
                 'msg' => $e->getMessage()
             ]);
         }
-    }
-
-    public function misIntercambios() {
-        $intercambios = Intercambio::listarPorUsuario($_SESSION['user']);
-        require __DIR__ . '/../views/intercambios/listado.php';
     }
 
     // Acepta una oferta
