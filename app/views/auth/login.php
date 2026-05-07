@@ -2,29 +2,48 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar sesión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - Kronet</title>
+    <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
 </head>
 <body>
 
-<h2>Iniciar sesión</h2>
+<main class="auth-main">
+    <div class="auth-card">
 
-<form id="loginForm">
-    <label>Email</label><br>
-    <input type="email" name="email" id="email" required><br><br>
+        <div class="auth-logo-icon">
+            <i class="fas fa-network-wired"></i>
+        </div>
+        <h1 class="auth-title">Bienvenido a Kronet</h1>
 
-    <label>Contraseña</label><br>
-    <input type="password" name="password" id="password" required><br><br>
+        <p id="errorMsg" class="flash flash-error" style="display:none;"></p>
 
-    <button type="submit">Entrar</button>
-</form>
+        <form id="loginForm" class="auth-form">
 
-<p id="errorMsg" style="color:red;"></p>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" placeholder="tu@email.com" required>
+            </div>
 
-<p>
-    ¿No tienes cuenta aún? 
-    <a href="/kronet/public/register">Registrate</a>
-</p>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" name="password" id="password" placeholder="••••••••" required>
+            </div>
 
+            <div class="auth-actions">
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+            </div>
+        </form>
+
+        <p class="auth-switch-link">
+            ¿No tienes cuenta aún?
+            <a href="/kronet/public/register">Regístrate</a>
+        </p>
+
+    </div>
+</main>
 
 <script src="/kronet/public/assets/js/login.js"></script>
 </body>

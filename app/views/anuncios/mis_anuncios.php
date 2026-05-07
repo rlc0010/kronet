@@ -4,59 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis anuncios - Kronet</title>
+    <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
 </head>
 <body>
 
-    <h1>Mis anuncios</h1>
+<div class="page-wrap">
 
-    <p><a href="/kronet/public/anuncios/crear">+ Publicar nuevo anuncio</a></p>
-    <p><a href="/kronet/public/">Volver al inicio</a></p>
+    <a class="back-link" href="/kronet/public/"><i class="fas fa-arrow-left"></i> Inicio</a>
 
-    <!-- Si el usuario no tiene anuncios mostramos un mensaje -->
+    <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+        <div>
+            <h1>Mis anuncios</h1>
+            <p>Gestiona tus publicaciones activas</p>
+        </div>
+        <a href="/kronet/public/anuncios/crear" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo anuncio
+        </a>
+    </div>
+
     <?php if (empty($anuncios)): ?>
-        <p>Todavía no has publicado ningún anuncio.</p>
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-bullhorn"></i></div>
+            <p>Todavía no has publicado ningún anuncio.</p>
+            <a href="/kronet/public/anuncios/crear" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Publicar mi primer anuncio
+            </a>
+        </div>
     <?php else: ?>
-        <!-- Recorremos todos los anuncios del usuario y los mostramos -->
-        <?php foreach ($anuncios as $anuncio): ?>
-            <!-- Ponemos el ID en el div para poder eliminarlo del DOM sin recargar -->
-            <div id="anuncio-<?= $anuncio['id_anuncio'] ?>">
-                <h2><?= htmlspecialchars($anuncio['titulo']) ?></h2>
-                <p><?= htmlspecialchars($anuncio['descripcion']) ?></p>
-                <p>Tipo: <?= htmlspecialchars($anuncio['tipo_anuncio']) ?></p>
-                <p>Categoría: <?= htmlspecialchars($anuncio['categoria']) ?></p>
-                <p>Duración: <?= htmlspecialchars($anuncio['duracion_estimada']) ?> horas</p>
-                <p>Estado: <?= htmlspecialchars($anuncio['estado']) ?></p>
-
-                <!-- Enlace para editar el anuncio -->
-                <a href="/kronet/public/anuncios/<?= $anuncio['id_anuncio'] ?>/editar">Editar</a> |
-                <!-- Botón de eliminar: llama a la función JS de abajo -->
-                <button onclick="eliminar(<?= $anuncio['id_anuncio'] ?>)">Eliminar</button>
-            </div>
-            <hr>
-        <?php endforeach; ?>
+        <div class="services-grid">
+            <?php foreach ($anuncios as $anuncio): ?>
+                <div class="service-card" id="anuncio-<?= $anuncio['id_anuncio'] ?>">
+                    <div class="card-body">
+                        <div class="tags-row">
+                            <span class="badge <?= $anuncio['tipo_anuncio'] === 'oferta' ? 'badge-oferta' : 'badge-demanda' ?>">
+                                <?= ucfirst(htmlspecialchars($anuncio['tipo_anuncio'])) ?>
+                            </span>
+                            <span class="badge <?= $anuncio['estado'] === 'activo' ? 'badge-activo' : 'badge-inactivo' ?>">
+                                <?= ucfirst(htmlspecialchars($anuncio['estado'])) ?>
+                            </span>
+                        </div>
+                        <h3><?= htmlspecialchars($anuncio['titulo']) ?></h3>
+                        <p><?= htmlspecialchars($anuncio['descripcion']) ?></p>
+                        <div class="tags-row">
+                            <span class="tag"><i class="fas fa-folder"></i> <?= htmlspecialchars($anuncio['categoria']) ?></span>
+                            <span class="tag"><i class="fas fa-clock"></i> <?= htmlspecialchars($anuncio['duracion_estimada']) ?>h</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-outline btn-sm" href="/kronet/public/anuncios/<?= $anuncio['id_anuncio'] ?>/editar">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <button class="btn btn-danger btn-sm" onclick="eliminar(<?= $anuncio['id_anuncio'] ?>)">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 
-    <script>
-        function eliminar(id) {
-            // Pedimos confirmación antes de eliminar
-            if (!confirm('¿Seguro que quieres eliminar este anuncio?')) return;
+</div>
 
-            // Enviamos la petición de eliminación al servidor
-            fetch('/kronet/public/anuncios/' + id + '/eliminar', {
-                method: 'POST'
-            })
+<script>
+    function eliminar(id) {
+        if (!confirm('¿Seguro que quieres eliminar este anuncio?')) return;
+        fetch('/kronet/public/anuncios/' + id + '/eliminar', { method: 'POST' })
             .then(res => res.json())
             .then(data => {
-                if (data.ok) {
-                    // Si se eliminó correctamente quitamos el div del DOM
-                    // sin necesidad de recargar la página
-                    document.getElementById('anuncio-' + id).remove();
-                } else {
-                    alert('Error: ' + data.msg);
-                }
+                if (data.ok) { document.getElementById('anuncio-' + id).remove(); }
+                else { alert('Error: ' + data.msg); }
             });
-        }
-    </script>
+    }
+</script>
 
 </body>
 </html>

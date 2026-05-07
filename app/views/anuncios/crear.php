@@ -4,71 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear anuncio - Kronet</title>
+    <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
 </head>
 <body>
 
-    <h1>Publicar anuncio</h1>
+<div class="page-wrap">
 
-    <!-- Formulario de creación de anuncio -->
-    <!-- El envío se gestiona por fetch en el JS de abajo para no recargar la página -->
-    <form id="formCrear">
+    <a class="back-link" href="/kronet/public/anuncios/mis-anuncios"><i class="fas fa-arrow-left"></i> Mis anuncios</a>
 
-        <label>Título</label><br>
-        <input type="text" name="titulo" required><br><br>
+    <div class="page-header">
+        <h1>Publicar anuncio</h1>
+        <p>Comparte lo que ofreces o lo que necesitas</p>
+    </div>
 
-        <label>Descripción</label><br>
-        <textarea name="descripcion" required></textarea><br><br>
+    <div id="msg"></div>
 
-        <label>Tipo de anuncio</label><br>
-        <select name="tipo_anuncio">
-            <!-- Oferta: el usuario ofrece algo -->
-            <option value="oferta">Oferta (ofrezco algo)</option>
-            <!-- Demanda: el usuario necesita algo -->
-            <option value="demanda">Demanda (necesito algo)</option>
-        </select><br><br>
+    <div class="form-container">
+        <form id="formCrear">
 
-        <label>Categoría</label><br>
-        <input type="text" name="categoria" required><br><br>
+            <div class="form-group">
+                <label for="titulo">Título</label>
+                <input type="text" name="titulo" id="titulo" placeholder="Ej: Clases de guitarra, Ayuda con mudanza..." required>
+            </div>
 
-        <label>Duración estimada (horas)</label><br>
-        <input type="number" name="duracion_estimada" min="1" required><br><br>
+            <div class="form-group">
+                <label for="descripcion">Descripción</label>
+                <textarea name="descripcion" id="descripcion" placeholder="Describe con detalle lo que ofreces o necesitas..." required></textarea>
+            </div>
 
-        <button type="submit">Publicar</button>
-    </form>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tipo_anuncio">Tipo de anuncio</label>
+                    <select name="tipo_anuncio" id="tipo_anuncio">
+                        <option value="oferta">Oferta (ofrezco algo)</option>
+                        <option value="demanda">Demanda (necesito algo)</option>
+                    </select>
+                </div>
 
-    <!-- Aquí mostramos mensajes de éxito o error tras el envío -->
-    <p id="msg" style="color:red;"></p>
+                <div class="form-group">
+                    <label for="categoria">Categoría</label>
+                    <input type="text" name="categoria" id="categoria" placeholder="Ej: Tecnología, Hogar..." required>
+                </div>
+            </div>
 
-    <p><a href="/kronet/public/anuncios/mis-anuncios">Ver mis anuncios</a></p>
-    <p><a href="/kronet/public/">Volver al inicio</a></p>
+            <div class="form-group">
+                <label for="duracion_estimada">Duración estimada (horas)</label>
+                <input type="number" name="duracion_estimada" id="duracion_estimada" min="1" placeholder="Ej: 2" required>
+            </div>
 
-    <script>
-        document.getElementById('formCrear').addEventListener('submit', function(e) {
-            e.preventDefault();
+            <div class="form-actions">
+                <a href="/kronet/public/" class="btn btn-ghost">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Publicar anuncio
+                </button>
+            </div>
+        </form>
+    </div>
 
-            // Recogemos todos los campos del formulario con FormData
-            const formData = new FormData(this);
-            const msg = document.getElementById('msg');
+</div>
 
-            fetch('/kronet/public/anuncios/crear', {
-                method: 'POST',
-                body: formData
-            })
+<script>
+    document.getElementById('formCrear').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const msg = document.getElementById('msg');
+        fetch('/kronet/public/anuncios/crear', { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
-                if (data.ok) {
-                    // Si todo fue bien mostramos el mensaje en verde y limpiamos el formulario
-                    msg.style.color = 'green';
-                    msg.textContent = data.msg;
-                    this.reset();
-                } else {
-                    // Si hubo error mostramos el mensaje en rojo
-                    msg.style.color = 'red';
-                    msg.textContent = data.msg;
-                }
+                msg.className = data.ok ? 'flash flash-ok' : 'flash flash-error';
+                msg.innerHTML = (data.ok ? '<i class="fas fa-check-circle"></i> ' : '<i class="fas fa-exclamation-circle"></i> ') + data.msg;
+                msg.style.display = 'flex';
+                if (data.ok) this.reset();
             });
-        });
-    </script>
+    });
+</script>
 
 </body>
 </html>
