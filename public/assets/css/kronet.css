@@ -16,6 +16,7 @@
     --blanco-marfil:   #FAFAF5;
     --gris-suave:      #BFC5D2;
     --gradiente-kronet: linear-gradient(135deg, var(--azul-profundo), var(--azul-verdoso));
+    --gradiente-kronet2: linear-gradient(135deg, var(--azul-profundo), var(--gris-suave));
     --sombra:          0 4px 15px rgba(15, 28, 63, 0.08);
     --sombra-media:    0 8px 25px rgba(15, 28, 63, 0.12);
     --radio:           14px;
@@ -66,8 +67,8 @@ h1, h2, h3, h4, h5, .logo-text {
     justify-content: space-between;
     align-items: center;
     padding: 10px 5%;
-    background: white;
-    box-shadow: 0 2px 10px rgba(15, 28, 63, 0.06);
+    background: var(--azul-profundo);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -82,14 +83,12 @@ h1, h2, h3, h4, h5, .logo-text {
 
 .logo-text {
     font-size: 22px;
-    color: var(--azul-profundo);
+    color: white;
 }
 
 .logo-icon {
     width: 36px;
     height: 36px;
-    background: var(--gradiente-kronet);
-    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -112,7 +111,7 @@ h1, h2, h3, h4, h5, .logo-text {
     border-radius: 25px;
     font-weight: 500;
     font-size: 14px;
-    color: var(--azul-profundo);
+    color: rgba(255,255,255,0.75);
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
     text-decoration: none;
@@ -120,12 +119,12 @@ h1, h2, h3, h4, h5, .logo-text {
 
 .nav-menu li a:hover,
 .nav-menu li span:hover {
-    background-color: rgba(0, 179, 179, 0.07);
-    color: var(--azul-verdoso);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
 }
 
 .nav-menu li a.active {
-    background-color: rgba(0, 179, 179, 0.12);
+    background-color: rgba(0, 179, 179, 0.25);
     color: var(--azul-verdoso);
     font-weight: 600;
 }
@@ -138,7 +137,7 @@ h1, h2, h3, h4, h5, .logo-text {
 
 .credits-badge {
     font-size: 14px;
-    color: var(--azul-profundo);
+    color: rgba(255,255,255,0.85);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -217,17 +216,9 @@ h1, h2, h3, h4, h5, .logo-text {
     color: var(--azul-verdoso);
 }
 
-.btn-white {
-    background: white;
-    color: var(--azul-profundo);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
+/* btn-white defined in hero-btns section */
 
-.btn-white-outline {
-    background: transparent;
-    border: 2px solid white;
-    color: white;
-}
+/* btn-white-outline defined in hero-btns section */
 
 .btn-ghost {
     background: transparent;
@@ -423,25 +414,27 @@ select.kro-input:focus {
    HERO (inicio)
    ------------------------------------------------------- */
 .hero-section {
-    background: var(--gradiente-kronet);
+    background: linear-gradient(135deg, var(--azul-profundo) 0%, #0a4a5a 50%, var(--azul-verdoso) 100%);
     color: white;
-    padding: 100px 5%;
+    padding: 120px 5% 110px;
     text-align: center;
 }
 
 .hero-section h1 {
-    font-size: 46px;
+    font-size: 52px;
     color: white;
-    margin-bottom: 20px;
-    line-height: 1.15;
+    margin-bottom: 22px;
+    line-height: 1.12;
+    font-weight: 800;
 }
 
 .hero-section p {
     font-size: 18px;
-    max-width: 650px;
-    margin: 0 auto 40px;
-    opacity: 0.9;
+    max-width: 620px;
+    margin: 0 auto 44px;
+    opacity: 0.88;
     color: white;
+    line-height: 1.6;
 }
 
 .hero-btns {
@@ -449,6 +442,24 @@ select.kro-input:focus {
     justify-content: center;
     gap: 18px;
     flex-wrap: wrap;
+}
+
+.btn-white {
+    background: white;
+    color: var(--azul-profundo);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    font-weight: 700;
+}
+
+.btn-white:hover {
+    background: #f0fafa;
+}
+
+.btn-white-outline {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.7);
+    color: white;
+    font-weight: 700;
 }
 
 /* -------------------------------------------------------
@@ -492,6 +503,12 @@ select.kro-input:focus {
 
 .how-card h3 { font-size: 18px; margin-bottom: 10px; }
 .how-card p  { color: rgba(15,28,63,0.6); font-size: 14px; line-height: 1.6; }
+
+a.how-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--sombra-media);
+    text-decoration: none;
+}
 
 /* -------------------------------------------------------
    ANUNCIO CARDS (buscar / explorar)
@@ -1161,7 +1178,7 @@ select.kro-input:focus {
     .footer-grid     { grid-template-columns: 1fr 1fr; }
     .form-row        { grid-template-columns: 1fr; }
     .nav-menu        { display: none; }
-    .hero-section h1 { font-size: 30px; }
+    .hero-section h1 { font-size: 32px; }
     .how-section     { padding: 50px 5%; }
     .page-wrap       { padding: 30px 16px 60px; }
 }

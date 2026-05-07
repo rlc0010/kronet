@@ -32,33 +32,14 @@ $valoracionController  = new ValoracionController();
 // HOME
 // =====================
 if ($uri == '/kronet/public/' || $uri == '/kronet/public') {
-    echo "<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'><title>Kronet</title>
-    <style>body{font-family:Arial,sans-serif;max-width:700px;margin:60px auto;padding:0 20px;text-align:center;}
-    h1{font-size:42px;color:#4a90e2;} nav a{display:inline-block;margin:6px 8px;padding:10px 20px;background:#4a90e2;color:white;border-radius:6px;text-decoration:none;font-size:14px;}
-    nav a:hover{background:#357abd;} .saldo{display:inline-block;background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:6px 18px;font-weight:bold;margin:10px 0;}
-    </style></head><body>";
-    echo "<h1>🌐 Kronet</h1>";
-
-    if (isset($_SESSION['id_usuario'])) {
-        echo "<p>Bienvenido/a de nuevo</p>";
-        echo "<nav>";
-        echo "<a href='/kronet/public/anuncios/crear'>+ Publicar anuncio</a>";
-        echo "<a href='/kronet/public/anuncios/mis-anuncios'>Mis anuncios</a>";
-        echo "<a href='/kronet/public/anuncios/buscar'>Buscar anuncios</a>";
-        echo "<a href='/kronet/public/intercambios/mis-intercambios'>Mis intercambios</a>";
-        echo "<a href='/kronet/public/intercambios/ofertas-recibidas'>Ofertas recibidas</a>";
-        echo "<a href='/kronet/public/mensajes'>Mensajes</a>";
-        echo "<a href='/kronet/public/perfil'>Mi perfil</a>";
-        echo "<a href='/kronet/public/valoraciones/mis-valoraciones'>Mis valoraciones</a>";
-        echo "<a href='/kronet/public/logout' style='background:#e74c3c;'>Cerrar sesión</a>";
-        echo "</nav>";
-    } else {
-        echo "<nav>";
-        echo "<a href='/kronet/public/login'>Iniciar sesión</a>";
-        echo "<a href='/kronet/public/register'>Registrarse</a>";
-        echo "</nav>";
+    // Si no está logueado, redirigir al login directamente
+    if (!isset($_SESSION['id_usuario'])) {
+        header("Location: /kronet/public/login");
+        exit;
     }
-    echo "</body></html>";
+    // Si está logueado, mostrar la home con diseño completo
+    require __DIR__ . '/../app/views/home.php';
+    exit;
 }
 
 // =====================
