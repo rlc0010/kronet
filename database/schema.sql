@@ -1,4 +1,3 @@
-
 -- ======================
 -- TABLA USUARIOS
 -- ======================
@@ -28,7 +27,7 @@ CREATE TABLE anuncios (
     fecha_publicacion DATETIME,
     estado VARCHAR(50),
     destacado BOOLEAN DEFAULT FALSE,
-    
+
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
         ON DELETE CASCADE
 );
@@ -57,20 +56,19 @@ CREATE TABLE intercambios (
 -- ======================
 -- TABLA VALORACIONES
 -- ======================
+-- Nota: id_usuario_autor = quien escribe la valoración
+--       id_usuario_destino = quien la recibe
 CREATE TABLE valoraciones (
     id_valoracion INT AUTO_INCREMENT PRIMARY KEY,
-    id_intercambio INT,
-    id_usuario_emisor INT,
-    id_usuario_receptor INT,
-    puntuacion INT,
+    id_usuario_autor INT,
+    id_usuario_destino INT,
+    puntuacion INT CHECK (puntuacion BETWEEN 1 AND 5),
     comentario TEXT,
-    fecha DATE,
+    fecha DATETIME,
 
-    FOREIGN KEY (id_intercambio) REFERENCES intercambios(id_intercambio)
+    FOREIGN KEY (id_usuario_autor) REFERENCES usuarios(id_usuario)
         ON DELETE CASCADE,
-    FOREIGN KEY (id_usuario_emisor) REFERENCES usuarios(id_usuario)
-        ON DELETE CASCADE,
-    FOREIGN KEY (id_usuario_receptor) REFERENCES usuarios(id_usuario)
+    FOREIGN KEY (id_usuario_destino) REFERENCES usuarios(id_usuario)
         ON DELETE CASCADE
 );
 

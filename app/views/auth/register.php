@@ -1,34 +1,54 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Kronet</title>
+    <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
 </head>
 <body>
 
-<h2>Registro</h2>
+<main class="auth-main">
+    <div class="auth-card">
 
-<form id="registerForm">
-    <label>Nombre</label><br>
-    <input type="text" name="nombre" id="nombre" required><br><br>
+        <div class="auth-logo-icon">
+            <i class="fas fa-network-wired"></i>
+        </div>
+        <h1 class="auth-title">Crear cuenta</h1>
 
-    <label>Email</label><br>
-    <input type="email" name="email" id="email" required><br><br>
+        <p id="errorMsg" class="flash flash-error" style="display:none;"></p>
 
-    <label>Contraseña</label><br>
-    <input type="password" name="password" id="password" required><br><br>
+        <form id="registerForm" class="auth-form">
 
-    <button type="submit">Registrarse</button>
-</form>
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input type="text" name="nombre" id="nombre" placeholder="Tu nombre" required>
+            </div>
 
-<p id="errorMsg" style="color:red;"></p>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" placeholder="tu@email.com" required>
+            </div>
 
-<p>
-    ¿Ya tienes cuenta? 
-    <a href="/kronet/public/login">Inicia sesión</a>
-</p>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" name="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <div class="auth-actions">
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i> Registrarse
+                </button>
+            </div>
+        </form>
+
+        <p class="auth-switch-link">
+            ¿Ya tienes cuenta?
+            <a href="/kronet/public/login">Inicia sesión</a>
+        </p>
+
+    </div>
+</main>
 
 <script src="/kronet/public/assets/js/register.js"></script>
-
 </body>
 </html>
