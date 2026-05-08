@@ -11,8 +11,8 @@
 <main class="auth-main">
     <div class="auth-card">
 
-        <div class="auth-logo-icon">
-            <i class="fas fa-network-wired"></i>
+        <div class="auth-logo-div-icon">
+            <img src="/kronet/public/assets/images/logo.png" alt="KRONET" class="auth-logo-icon">
         </div>
         <h1 class="auth-title">Crear cuenta</h1>
 
