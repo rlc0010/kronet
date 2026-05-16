@@ -1,65 +1,62 @@
 <?php
 require_once __DIR__ . '/../models/Valoracion.php';
-require_once __DIR__ . '/../models/Intercambio.php';
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Notificacion.php';
 
 class ValoracionController {
 
-    // Muestra el formulario para dejar una valoración a otro usuario
     public function showCrear() {
-        $idDestino = $_GET['id_usuario'] ?? null;
-
-        if (!$idDestino || !is_numeric($idDestino)) {
-            header("Location: /kronet/public/");
-            exit;
+        $idDestino = (int)($_GET['id_usuario'] ?? 0);
+        $destinatario = User::findById($idDestino);
+        if (!$destinatario || $idDestino === (int)$_SESSION['id_usuario']) {
+            header("Location: /kronet/public/"); exit;
         }
-
-        // No puedes valorarte a ti mismo
-        if ($idDestino == $_SESSION['id_usuario']) {
-            header("Location: /kronet/public/");
-            exit;
-        }
-
         require __DIR__ . '/../views/valoraciones/crear.php';
     }
 
-    // Procesa y guarda la valoración
     public function crear() {
         header('Content-Type: application/json');
 
-        $idAutor    = $_SESSION['id_usuario'];
-        $idDestino  = $_POST['id_destino'] ?? null;
-        $puntuacion = $_POST['puntuacion'] ?? null;
-        $comentario = trim($_POST['comentario'] ?? '');
+        $miId      = (int)$_SESSION['id_usuario'];
+        $idDestino = (int)($_POST['id_destino'] ?? 0);
+        $puntuacion= (int)($_POST['puntuacion'] ?? 0);
+        $comentario= trim($_POST['comentario'] ?? '');
 
-        if (!$idDestino || !is_numeric($idDestino)) {
-            echo json_encode(['ok' => false, 'msg' => 'Usuario inválido']);
+        if (!$idDestino || $idDestino === $miId) {
+            echo json_encode(['ok' => false, 'msg' => 'Destinatario no válido']);
             return;
         }
-
-        if ($idAutor == $idDestino) {
-            echo json_encode(['ok' => false, 'msg' => 'No puedes valorarte a ti mismo']);
+        if ($puntuacion < 1 || $puntuacion > 5) {
+            echo json_encode(['ok' => false, 'msg' => 'Selecciona entre 1 y 5 estrellas']);
             return;
         }
-
-        if (!$puntuacion || $puntuacion < 1 || $puntuacion > 5) {
-            echo json_encode(['ok' => false, 'msg' => 'La puntuación debe estar entre 1 y 5']);
+        if (mb_strlen($comentario) > 500) {
+            echo json_encode(['ok' => false, 'msg' => 'Comentario demasiado largo (máx 500)']);
             return;
         }
-
-        if (Valoracion::yaValorado($idAutor, $idDestino)) {
+        if (!User::findById($idDestino)) {
+            echo json_encode(['ok' => false, 'msg' => 'Usuario no encontrado']);
+            return;
+        }
+        if (Valoracion::yaValorado($miId, $idDestino)) {
             echo json_encode(['ok' => false, 'msg' => 'Ya has valorado a este usuario']);
             return;
         }
 
-        $ok = Valoracion::crear($idAutor, $idDestino, $puntuacion, $comentario);
-        echo json_encode(['ok' => $ok, 'msg' => $ok ? 'Valoración enviada correctamente' : 'Error al guardar la valoración']);
+        $ok = Valoracion::crear($miId, $idDestino, $puntuacion, $comentario);
+        if ($ok) {
+            Notificacion::crear($idDestino, 'valoracion',
+                'Has recibido una valoración',
+                'Un usuario te ha valorado con ' . $puntuacion . ' estrellas.',
+                '/kronet/public/valoraciones/mis-valoraciones');
+        }
+        echo json_encode(['ok' => (bool)$ok, 'msg' => $ok ? 'Valoración registrada' : 'No se pudo enviar']);
     }
 
-    // Lista las valoraciones recibidas por el usuario logueado
     public function misValoraciones() {
-        $idUsuario   = $_SESSION['id_usuario'];
-        $valoraciones = Valoracion::findByDestinatario($idUsuario);
-        $media        = Valoracion::mediaUsuario($idUsuario);
+        $miId = (int)$_SESSION['id_usuario'];
+        $valoraciones = Valoracion::findByDestinatario($miId);
+        $media = Valoracion::mediaUsuario($miId);
         require __DIR__ . '/../views/valoraciones/listado.php';
     }
 }

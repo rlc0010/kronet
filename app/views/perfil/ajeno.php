@@ -1,15 +1,17 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="/kronet/public/assets/images/logo.png">
-    <title>Perfil de <?= htmlspecialchars($usuario['nombre'] ?? 'Usuario') ?> - Kronet</title>
-    <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
-</head>
-<body>
+<?php
+$pageTitle = 'Perfil';
+$navActive = '';
+require __DIR__ . '/../partials/head.php';
+require __DIR__ . '/../partials/navbar.php';
+require_once __DIR__ . '/../../helpers/Categorias.php';
+?>
 
-<div class="page-wrap">
+<section class="hero-section hero-compact">
+    <h1><?= isset($usuario['nombre']) ? htmlspecialchars($usuario['nombre']) : 'Perfil' ?></h1>
+    <p>Perfil público en Kronet</p>
+</section>
+
+<div class="page-wrap-wide">
 
     <a class="back-link" href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Volver</a>
 
@@ -19,8 +21,7 @@
 
     <div class="profile-layout">
 
-        <!-- Sidebar -->
-        <div class="profile-sidebar">
+        <div>
             <div class="user-card">
                 <div class="avatar-wrapper">
                     <div class="main-avatar-placeholder">
@@ -28,44 +29,59 @@
                     </div>
                 </div>
                 <h2><?= htmlspecialchars($usuario['nombre']) ?></h2>
-                <p class="user-desc"><?= htmlspecialchars($usuario['descripcion'] ?? 'Sin descripción') ?></p>
+                <p class="user-desc"><?= htmlspecialchars($usuario['descripcion'] ?: 'Sin descripción') ?></p>
 
                 <?php if ($media['total'] > 0): ?>
                     <div class="rating-badge">
                         <i class="fas fa-star"></i>
                         <?= number_format($media['media'], 1) ?> / 5
+                        <span style="font-weight:500; opacity:0.85;">(<?= (int)$media['total'] ?>)</span>
                     </div>
-                    <p style="font-size:13px; color:var(--gris-suave); margin-bottom:16px;">(<?= $media['total'] ?> valoraciones)</p>
                 <?php else: ?>
-                    <p style="font-size:13px; color:var(--gris-suave); margin-bottom:16px;">Sin valoraciones aún</p>
+                    <p style="font-size:13px; color:var(--gris-texto); margin-bottom:12px;">Sin valoraciones aún</p>
                 <?php endif; ?>
 
-                <div class="action-strip">
-                    <a class="btn btn-secondary btn-sm" href="/kronet/public/mensajes/nuevo?id_receptor=<?= $usuario['id_usuario'] ?>">
-                        <i class="fas fa-envelope"></i> Enviar mensaje
-                    </a>
+                <div class="action-strip" style="flex-direction:column;">
                     <?php if (!$yaValorado): ?>
-                        <a class="btn btn-valorar btn-sm" href="/kronet/public/valoraciones/crear?id_usuario=<?= $usuario['id_usuario'] ?>">
+                        <a class="btn btn-valorar btn-sm" href="/kronet/public/valoraciones/crear?id_usuario=<?= (int)$usuario['id_usuario'] ?>">
                             <i class="fas fa-star"></i> Dejar valoración
                         </a>
                     <?php else: ?>
                         <span class="btn btn-ghost btn-sm" style="cursor:default;">
-                            <i class="fas fa-check"></i> Ya valorado
+                            <i class="fas fa-check"></i> Ya lo has valorado
                         </span>
+                    <?php endif; ?>
+
+                    <?php if (!$esContacto): ?>
+                        <button class="btn btn-outline btn-sm" onclick="agregar(<?= (int)$usuario['id_usuario'] ?>)">
+                            <i class="fas fa-user-plus"></i> Agregar a contactos
+                        </button>
+                    <?php else: ?>
+                        <button class="btn btn-ghost btn-sm" onclick="quitar(<?= (int)$usuario['id_usuario'] ?>)">
+                            <i class="fas fa-user-check"></i> En tus contactos · Quitar
+                        </button>
+                    <?php endif; ?>
+
+                    <?php if (!$estaBloqueado): ?>
+                        <button class="btn btn-danger btn-sm" onclick="bloquear(<?= (int)$usuario['id_usuario'] ?>)">
+                            <i class="fas fa-ban"></i> Bloquear usuario
+                        </button>
+                    <?php else: ?>
+                        <button class="btn btn-ghost btn-sm" onclick="desbloquear(<?= (int)$usuario['id_usuario'] ?>)">
+                            <i class="fas fa-undo"></i> Desbloquear
+                        </button>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
 
-        <!-- Columna principal -->
         <div class="profile-main-col">
 
             <!-- Anuncios -->
             <div class="card">
-                <div class="page-header">
-                    <h2><i class="fas fa-bullhorn"></i> Anuncios de <?= htmlspecialchars($usuario['nombre']) ?></h2>
+                <div class="page-header" style="margin-bottom:18px;">
+                    <h2><i class="fas fa-bullhorn"></i> Anuncios activos</h2>
                 </div>
-
                 <?php if (empty($anuncios)): ?>
                     <div class="empty-state">
                         <div class="empty-icon"><i class="fas fa-bullhorn"></i></div>
@@ -73,26 +89,30 @@
                     </div>
                 <?php else: ?>
                     <div class="services-grid">
-                        <?php foreach ($anuncios as $anuncio): ?>
-                            <div class="service-card" id="anuncio-<?= $anuncio['id_anuncio'] ?>">
+                        <?php foreach ($anuncios as $a):
+                            $catNombre = Categorias::nombre($a['categoria']);
+                            $catIcon   = Categorias::icono($a['categoria']);
+                        ?>
+                            <div class="service-card">
                                 <div class="card-body">
                                     <div class="tags-row">
-                                        <span class="badge <?= $anuncio['tipo_anuncio'] === 'oferta' ? 'badge-oferta' : 'badge-demanda' ?>">
-                                            <?= ucfirst(htmlspecialchars($anuncio['tipo_anuncio'])) ?>
-                                        </span>
+                                        <span class="badge <?= $a['tipo_anuncio'] === 'oferta' ? 'badge-oferta' : 'badge-demanda' ?>"><?= ucfirst($a['tipo_anuncio']) ?></span>
                                     </div>
-                                    <h3><?= htmlspecialchars($anuncio['titulo']) ?></h3>
-                                    <p><?= htmlspecialchars($anuncio['descripcion']) ?></p>
+                                    <h3>
+                                        <a href="/kronet/public/anuncios/<?= (int)$a['id_anuncio'] ?>" style="color:inherit;">
+                                            <?= htmlspecialchars($a['titulo']) ?>
+                                        </a>
+                                    </h3>
+                                    <p><?= htmlspecialchars(mb_substr($a['descripcion'],0,120)) ?>…</p>
                                     <div class="tags-row">
-                                        <span class="tag"><i class="fas fa-folder"></i> <?= htmlspecialchars($anuncio['categoria']) ?></span>
-                                        <span class="tag"><i class="fas fa-clock"></i> <?= htmlspecialchars($anuncio['duracion_estimada']) ?>h</span>
+                                        <span class="tag tag-cat"><i class="<?= $catIcon ?>"></i> <?= htmlspecialchars($catNombre) ?></span>
                                     </div>
                                 </div>
+                                <span class="time-tag"><i class="fas fa-coins"></i> <?= (int)$a['precio_creditos'] ?></span>
                                 <div class="card-footer">
-                                    <button class="btn btn-primary btn-sm" onclick="solicitarAnuncio(<?= $anuncio['id_anuncio'] ?>, this)">
-                                        <i class="fas fa-envelope"></i> Solicitar
-                                    </button>
-                                    <div id="msg-solicitar-<?= $anuncio['id_anuncio'] ?>" style="font-size:13px; font-weight:600;"></div>
+                                    <a class="btn btn-primary btn-sm" href="/kronet/public/anuncios/<?= (int)$a['id_anuncio'] ?>">
+                                        <i class="fas fa-arrow-right"></i> Ver anuncio
+                                    </a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -102,10 +122,9 @@
 
             <!-- Valoraciones -->
             <div class="card">
-                <div class="page-header">
+                <div class="page-header" style="margin-bottom:18px;">
                     <h2><i class="fas fa-star"></i> Valoraciones recibidas</h2>
                 </div>
-
                 <?php if (empty($valoraciones)): ?>
                     <div class="empty-state">
                         <div class="empty-icon"><i class="fas fa-star"></i></div>
@@ -137,32 +156,31 @@
     </div>
 
     <?php endif; ?>
-
 </div>
 
 <script>
-    function solicitarAnuncio(idAnuncio, btn) {
-        if (!confirm('¿Quieres solicitar este anuncio? Se descontarán los créditos correspondientes.')) return;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-        const formData = new FormData();
-        formData.append('id_anuncio', idAnuncio);
-        fetch('/kronet/public/intercambios/solicitar', { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
-                const msgDiv = document.getElementById('msg-solicitar-' + idAnuncio);
-                msgDiv.style.color = data.ok ? 'var(--verde-azulado)' : '#b91c1c';
-                msgDiv.textContent = data.ok ? '✓ Solicitud enviada' : '✗ ' + data.msg;
-                if (data.ok) { btn.innerHTML = '<i class="fas fa-check"></i> Solicitado'; }
-                else { btn.disabled = false; btn.innerHTML = '<i class="fas fa-envelope"></i> Solicitar'; }
-            })
-            .catch(() => {
-                document.getElementById('msg-solicitar-' + idAnuncio).textContent = 'Error de conexión.';
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-envelope"></i> Solicitar';
-            });
-    }
+async function agregar(id) {
+    const data = await apiPost('/kronet/public/usuarios/agregar', { id_usuario: id });
+    showToast(data.msg, data.ok ? 'ok' : 'warn');
+    if (data.ok) setTimeout(() => window.location.reload(), 700);
+}
+async function quitar(id) {
+    if (!confirmar('¿Quitar de contactos?')) return;
+    const data = await apiPost('/kronet/public/usuarios/quitar', { id_usuario: id });
+    showToast(data.msg, data.ok ? 'ok' : 'error');
+    if (data.ok) setTimeout(() => window.location.reload(), 700);
+}
+async function bloquear(id) {
+    if (!confirmar('¿Bloquear a este usuario?')) return;
+    const data = await apiPost('/kronet/public/usuarios/bloquear', { id_usuario: id });
+    showToast(data.msg, data.ok ? 'ok' : 'warn');
+    if (data.ok) setTimeout(() => window.location.reload(), 700);
+}
+async function desbloquear(id) {
+    const data = await apiPost('/kronet/public/usuarios/desbloquear', { id_usuario: id });
+    showToast(data.msg, data.ok ? 'ok' : 'error');
+    if (data.ok) setTimeout(() => window.location.reload(), 700);
+}
 </script>
 
-</body>
-</html>
+<?php require __DIR__ . '/../partials/footer.php'; ?>

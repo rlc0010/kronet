@@ -1,42 +1,96 @@
-document.getElementById("loginForm").addEventListener("submit", function(e) {
-    e.preventDefault();
+/* =======================================================
+   LOGIN — validación + envío
+   ======================================================= */
 
-    let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value.trim();
-    let errorMsg = document.getElementById("errorMsg");
+const formLogin   = document.getElementById('loginForm');
+const inputEmail  = document.getElementById('email');
+const inputPass   = document.getElementById('password');
+const errorBox    = document.getElementById('errorMsg');
+const submitBtn   = document.getElementById('submitBtn');
 
-    // Reset mensaje
-    errorMsg.textContent = "";
-    errorMsg.style.color = "red";
-
-    // Validación básica
-    if (!email || !password) {
-        errorMsg.textContent = "Todos los campos son obligatorios";
-        return;
+function setFieldError(name, msg) {
+    const el = document.getElementById('err-' + name);
+    const input = document.getElementById(name);
+    if (msg) {
+        el.style.display = 'flex';
+        el.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + msg;
+        if (input) input.style.borderColor = '#fca5a5';
+    } else {
+        el.style.display = 'none';
+        el.textContent = '';
+        if (input) input.style.borderColor = '';
     }
+}
 
-    //Validación formato email
-    if (!email.includes("@")) {
-        errorMsg.textContent = "El email no es válido";
-        return;
-    }
+function showErrorBox(msg) {
+    errorBox.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + msg;
+    errorBox.style.display = 'flex';
+}
+function hideErrorBox() {
+    errorBox.style.display = 'none';
+    errorBox.textContent = '';
+}
 
-    fetch("/kronet/public/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
-        })
-        .then(res => res.text())
-        .then(data => {
-            if (data.includes("correcto")) {
-                errorMsg.style.color = "green";
-                errorMsg.textContent = "Login correcto";
-
-                window.location.href = "/kronet/public/";
-            } else {
-                errorMsg.textContent = data;
-            }
+[inputEmail, inputPass].forEach(el => {
+    el.addEventListener('input', () => {
+        setFieldError(el.id, null);
+        hideErrorBox();
     });
+});
+
+formLogin.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideErrorBox();
+
+    const email = inputEmail.value.trim();
+    const pass  = inputPass.value;
+    let ok = true;
+
+    if (!email) { setFieldError('email', 'Introduce tu email'); ok = false; }
+    else if (!emailValido(email)) { setFieldError('email', 'Email con formato no válido'); ok = false; }
+
+    if (!pass)  { setFieldError('password', 'Introduce tu contraseña'); ok = false; }
+
+    if (!ok) {
+        showToast('Revisa los campos marcados', 'error');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Comprobando...';
+
+    try {
+        const res = await fetch('/kronet/public/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(pass)
+        });
+
+        // El backend devuelve siempre JSON {ok, msg}. Antes hacíamos
+        // includes('correcto') sobre texto plano y la palabra "correcto"
+        // también está dentro de "incorrectos", lo que daba un falso
+        // positivo de sesión iniciada cuando el login era fallido.
+        let data;
+        try {
+            data = await res.json();
+        } catch (_) {
+            data = { ok: false, msg: 'Respuesta inesperada del servidor' };
+        }
+
+        if (data.ok) {
+            showToast(data.msg || 'Sesión iniciada', 'ok', 1200);
+            setTimeout(() => { window.location.href = '/kronet/public/'; }, 600);
+        } else {
+            const msg = data.msg || 'Credenciales incorrectas';
+            showErrorBox(msg);
+            showToast(msg, 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+        }
+    } catch (err) {
+        showErrorBox('Error de conexión. Inténtalo de nuevo.');
+        showToast('Error de conexión', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar';
+    }
 });

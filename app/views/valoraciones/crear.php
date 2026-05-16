@@ -1,22 +1,20 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dejar valoración - Kronet</title>
-    <link rel="icon" type="image/png" href="/kronet/public/assets/images/logo.png">
-    <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
-</head>
-<body>
+<?php
+$pageTitle = 'Dejar valoración';
+$navActive = '';
+require __DIR__ . '/../partials/head.php';
+require __DIR__ . '/../partials/navbar.php';
+?>
+
+<section class="hero-section hero-compact">
+    <h1>Dejar valoración</h1>
+    <p>Comparte tu experiencia con
+        <strong><?= htmlspecialchars($destinatario['nombre'] ?? 'este usuario') ?></strong>
+    </p>
+</section>
 
 <div class="page-wrap">
 
-    <a class="back-link" href="/kronet/public/"><i class="fas fa-arrow-left"></i> Volver al inicio</a>
-
-    <div class="page-header">
-        <h1><i class="fas fa-star"></i> Dejar valoración</h1>
-        <p>Comparte tu experiencia con este usuario</p>
-    </div>
+    <a class="back-link" href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Volver</a>
 
     <div id="msg"></div>
 
@@ -25,27 +23,23 @@
         <div class="form-group">
             <label>Puntuación</label>
             <div class="stars-input">
-                <input type="radio" name="puntuacion" id="star5" value="5">
-                <label for="star5">★</label>
-                <input type="radio" name="puntuacion" id="star4" value="4">
-                <label for="star4">★</label>
-                <input type="radio" name="puntuacion" id="star3" value="3">
-                <label for="star3">★</label>
-                <input type="radio" name="puntuacion" id="star2" value="2">
-                <label for="star2">★</label>
-                <input type="radio" name="puntuacion" id="star1" value="1">
-                <label for="star1">★</label>
+                <input type="radio" name="puntuacion" id="star5" value="5"><label for="star5">★</label>
+                <input type="radio" name="puntuacion" id="star4" value="4"><label for="star4">★</label>
+                <input type="radio" name="puntuacion" id="star3" value="3"><label for="star3">★</label>
+                <input type="radio" name="puntuacion" id="star2" value="2"><label for="star2">★</label>
+                <input type="radio" name="puntuacion" id="star1" value="1"><label for="star1">★</label>
             </div>
+            <span class="help-text">Selecciona entre 1 y 5 estrellas.</span>
         </div>
 
         <div class="form-group">
             <label for="comentario">Comentario (opcional)</label>
-            <textarea class="kro-input" id="comentario" rows="4" maxlength="500" placeholder="Describe tu experiencia con este usuario..."></textarea>
+            <textarea id="comentario" rows="4" maxlength="500" placeholder="Describe tu experiencia con este usuario..."></textarea>
         </div>
 
         <div class="form-actions">
-            <a href="/kronet/public/" class="btn btn-ghost">Cancelar</a>
-            <button class="btn btn-primary" onclick="enviarValoracion()">
+            <a href="javascript:history.back()" class="btn btn-ghost">Cancelar</a>
+            <button class="btn btn-primary" id="btnEnviar" onclick="enviar()">
                 <i class="fas fa-paper-plane"></i> Enviar valoración
             </button>
         </div>
@@ -55,41 +49,42 @@
 </div>
 
 <script>
-    const idDestino = <?= (int)$idDestino ?>;
+const ID_DESTINO = <?= (int)$idDestino ?>;
 
-    function enviarValoracion() {
-        const puntuacionInput = document.querySelector('input[name="puntuacion"]:checked');
-        const comentario = document.getElementById('comentario').value;
-        const msgDiv = document.getElementById('msg');
+async function enviar() {
+    const punt = document.querySelector('input[name="puntuacion"]:checked');
+    const msg  = document.getElementById('msg');
+    const btn  = document.getElementById('btnEnviar');
 
-        if (!puntuacionInput) {
-            msgDiv.className = 'flash flash-error';
-            msgDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Selecciona una puntuación.';
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('id_destino', idDestino);
-        formData.append('puntuacion', puntuacionInput.value);
-        formData.append('comentario', comentario);
-
-        fetch('/kronet/public/valoraciones/crear', { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
-                msgDiv.className = data.ok ? 'flash flash-ok' : 'flash flash-error';
-                msgDiv.innerHTML = (data.ok ? '<i class="fas fa-check-circle"></i> ' : '<i class="fas fa-exclamation-circle"></i> ') + data.msg;
-                if (data.ok) {
-                    setTimeout(() => {
-                        window.location.href = '/kronet/public/valoraciones/mis-valoraciones';
-                    }, 1500);
-                }
-            })
-            .catch(() => {
-                msgDiv.className = 'flash flash-error';
-                msgDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión. Inténtalo de nuevo.';
-            });
+    if (!punt) {
+        msg.className = 'flash flash-error';
+        msg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Selecciona una puntuación.';
+        msg.style.display = 'flex';
+        showToast('Selecciona una puntuación', 'error');
+        return;
     }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+    const data = await apiPost('/kronet/public/valoraciones/crear', {
+        id_destino:  ID_DESTINO,
+        puntuacion:  punt.value,
+        comentario:  document.getElementById('comentario').value
+    });
+
+    showToast(data.msg, data.ok ? 'ok' : 'error');
+    msg.className = data.ok ? 'flash flash-ok' : 'flash flash-error';
+    msg.innerHTML = (data.ok ? '<i class="fas fa-check-circle"></i> ' : '<i class="fas fa-exclamation-circle"></i> ') + data.msg;
+    msg.style.display = 'flex';
+
+    if (data.ok) {
+        setTimeout(() => window.location.href = '/kronet/public/perfil/' + ID_DESTINO, 1100);
+    } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar valoración';
+    }
+}
 </script>
 
-</body>
-</html>
+<?php require __DIR__ . '/../partials/footer.php'; ?>
