@@ -140,11 +140,13 @@ if ($logueado) {
                 <p>Historial de intercambios</p>
             </a>
 
+            <?php if (($navUser['tipo_usuario'] ?? '') !== 'suscrito'): ?>
             <a href="/kronet/public/suscripcion" class="how-card">
                 <div class="how-icon" style="background: linear-gradient(135deg,#F59E0B,#D97706);"><i class="fas fa-crown"></i></div>
                 <h3>Hazte Premium</h3>
                 <p>Más visibilidad y destacados</p>
             </a>
+            <?php endif; ?>
         </div>
     </div>
 </section>

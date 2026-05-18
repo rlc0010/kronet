@@ -140,8 +140,8 @@ $anonimo  = !$miId;
                 <div class="chat-body" id="chatBody">
                     <?php if (empty($mensajes)): ?>
                         <div class="chat-empty">
-                            <i class="fas fa-comments" style="font-size:32px; margin-bottom:8px; display:block;"></i>
-                            Aún no hay mensajes. Sé el primero en escribir.
+                            <i class="fas fa-comments"></i>
+                            <span>Aún no hay mensajes. Sé el primero en escribir.</span>
                         </div>
                     <?php else: ?>
                         <?php foreach ($mensajes as $m):

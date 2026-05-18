@@ -56,7 +56,11 @@ require __DIR__ . '/../partials/navbar.php';
                     <a class="btn btn-outline btn-sm" href="/kronet/public/valoraciones/mis-valoraciones">
                         <i class="fas fa-star"></i> Mis valoraciones
                     </a>
-                    <?php if (!$suscripcion): ?>
+                    <?php if ($suscripcion): ?>
+                        <a class="btn btn-outline btn-sm" href="/kronet/public/suscripcion">
+                            <i class="fas fa-crown" style="color:#F59E0B;"></i> Gestionar suscripción
+                        </a>
+                    <?php else: ?>
                         <a class="btn btn-secondary btn-sm" href="/kronet/public/suscripcion">
                             <i class="fas fa-crown"></i> Hazte Premium
                         </a>
