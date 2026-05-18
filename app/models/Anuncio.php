@@ -39,7 +39,8 @@ class Anuncio {
      * PrecioCalculator a partir de la duración y la categoría.
      */
     public static function create($id_usuario, $titulo, $descripcion, $tipo_anuncio,
-                                  $categoria, $duracion_estimada, $plazas_totales = 1) {
+                                  $categoria, $duracion_estimada, $plazas_totales = 1,
+                                  $imagen = null) {
         global $pdo;
 
         $duracion_estimada = max(1, (int)$duracion_estimada);
@@ -50,14 +51,20 @@ class Anuncio {
             INSERT INTO anuncios
             (id_usuario, titulo, descripcion, tipo_anuncio, categoria,
              duracion_estimada, precio_creditos, plazas_totales, plazas_ocupadas,
-             fecha_publicacion, estado, destacado)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, NOW(), 'activo', 0)
+             fecha_publicacion, estado, destacado, imagen)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, NOW(), 'activo', 0, ?)
         ");
         $stmt->execute([
             $id_usuario, $titulo, $descripcion, $tipo_anuncio, $categoria,
-            $duracion_estimada, $precio_creditos, $plazas_totales
+            $duracion_estimada, $precio_creditos, $plazas_totales, $imagen
         ]);
         return $pdo->lastInsertId();
+    }
+
+    public static function updateImagen($id_anuncio, $imagen) {
+        global $pdo;
+        $stmt = $pdo->prepare("UPDATE anuncios SET imagen = ? WHERE id_anuncio = ?");
+        return $stmt->execute([$imagen, $id_anuncio]);
     }
 
     public static function update($id_anuncio, $titulo, $descripcion, $tipo_anuncio,
@@ -90,7 +97,7 @@ class Anuncio {
      * Búsqueda con filtros opcionales y paginación.
      */
     public static function search($busqueda = null, $tipo_anuncio = null, $categoria = null,
-                                  $limit = 20, $offset = 0) {
+                                  $limit = 20, $offset = 0, $excluirUsuarios = []) {
         global $pdo;
 
         $sql = "
@@ -101,6 +108,11 @@ class Anuncio {
         ";
         $params = [];
 
+        if (!empty($excluirUsuarios)) {
+            $ph = implode(',', array_fill(0, count($excluirUsuarios), '?'));
+            $sql .= " AND a.id_usuario NOT IN ($ph)";
+            $params = array_merge($params, $excluirUsuarios);
+        }
         if ($busqueda) {
             $sql .= " AND (a.titulo LIKE ? OR a.descripcion LIKE ?)";
             $params[] = "%$busqueda%";
@@ -123,22 +135,28 @@ class Anuncio {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function countSearch($busqueda = null, $tipo_anuncio = null, $categoria = null) {
+    public static function countSearch($busqueda = null, $tipo_anuncio = null, $categoria = null,
+                                        $excluirUsuarios = []) {
         global $pdo;
-        $sql = "SELECT COUNT(*) FROM anuncios WHERE estado = 'activo'";
+        $sql = "SELECT COUNT(*) FROM anuncios a WHERE a.estado = 'activo'";
         $params = [];
 
+        if (!empty($excluirUsuarios)) {
+            $ph = implode(',', array_fill(0, count($excluirUsuarios), '?'));
+            $sql .= " AND a.id_usuario NOT IN ($ph)";
+            $params = array_merge($params, $excluirUsuarios);
+        }
         if ($busqueda) {
-            $sql .= " AND (titulo LIKE ? OR descripcion LIKE ?)";
+            $sql .= " AND (a.titulo LIKE ? OR a.descripcion LIKE ?)";
             $params[] = "%$busqueda%";
             $params[] = "%$busqueda%";
         }
         if ($tipo_anuncio) {
-            $sql .= " AND tipo_anuncio = ?";
+            $sql .= " AND a.tipo_anuncio = ?";
             $params[] = $tipo_anuncio;
         }
         if ($categoria) {
-            $sql .= " AND categoria = ?";
+            $sql .= " AND a.categoria = ?";
             $params[] = $categoria;
         }
 

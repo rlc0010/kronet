@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/../../config/conexion_db.php';
 
+/**
+ * Valoraciones de usuario a usuario (1–5 estrellas).
+ * Solo se permite una valoración por par autor→destino,
+ * lo que obliga a que sea reflexionada y no se repita.
+ */
 class Valoracion {
 
     public static function crear($idAutor, $idDestino, $puntuacion, $comentario) {
@@ -39,6 +44,7 @@ class Valoracion {
         return ['media' => (float)($res['media'] ?? 0), 'total' => (int)($res['total'] ?? 0)];
     }
 
+    /** Para evitar que un mismo usuario valore más de una vez al mismo destinatario. */
     public static function yaValorado($idAutor, $idDestino) {
         global $pdo;
         $stmt = $pdo->prepare("

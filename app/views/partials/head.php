@@ -14,5 +14,6 @@ $titulo = isset($pageTitle) ? $pageTitle . ' — Kronet' : 'Kronet — Intercamb
     <title><?= htmlspecialchars($titulo) ?></title>
     <link rel="icon" type="image/png" href="/kronet/public/assets/images/logo.png">
     <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
+    <script src="https://kit.fontawesome.com/a420809f79.js" crossorigin="anonymous"></script>
 </head>
 <body>

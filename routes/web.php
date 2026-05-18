@@ -161,6 +161,15 @@ if ($uri == '/kronet/public/suscripcion' && $method == 'GET')        { requireLo
 if ($uri == '/kronet/public/suscripcion/activar' && $method == 'POST'){ requireLogin(); $suscripcionController->suscribir(); }
 if ($uri == '/kronet/public/suscripcion/cancelar' && $method == 'POST'){ requireLogin(); $suscripcionController->cancelar(); }
 
+// ===== CONTACTOS =====
+if ($uri == '/kronet/public/contactos' && $method == 'GET') {
+    requireLogin();
+    require_once __DIR__ . '/../app/models/Contacto.php';
+    $contactos = Contacto::listarConDetalles((int)$_SESSION['id_usuario']);
+    require __DIR__ . '/../app/views/contactos/listado.php';
+    exit;
+}
+
 // ===== USUARIOS (contactos, bloqueos) =====
 if ($uri == '/kronet/public/usuarios/agregar' && $method == 'POST')    { requireLogin(); $usuariosController->agregar(); }
 if ($uri == '/kronet/public/usuarios/quitar' && $method == 'POST')     { requireLogin(); $usuariosController->quitarContacto(); }

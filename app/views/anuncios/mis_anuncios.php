@@ -41,6 +41,18 @@ require_once __DIR__ . '/../../helpers/Categorias.php';
                     : 0;
             ?>
                 <div class="service-card" id="anuncio-<?= $anuncio['id_anuncio'] ?>">
+                    <div class="card-img cat-<?= htmlspecialchars($catSlug) ?>">
+                        <?php if (!empty($anuncio['imagen'])): ?>
+                            <img src="/kronet/public/uploads/anuncios/<?= htmlspecialchars($anuncio['imagen']) ?>" alt="<?= htmlspecialchars($anuncio['titulo']) ?>">
+                        <?php else: ?>
+                            <i class="<?= $catIcon ?>"></i>
+                        <?php endif; ?>
+                        <?php if ($anuncio['destacado']): ?>
+                            <span class="badge-img-destacado">
+                                <i class="fas fa-star"></i> Destacado hasta <?= date('d/m', strtotime($anuncio['destacado_hasta'])) ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
                     <div class="card-body">
                         <div class="tags-row">
                             <span class="badge <?= $anuncio['tipo_anuncio'] === 'oferta' ? 'badge-oferta' : 'badge-demanda' ?>">
@@ -49,9 +61,6 @@ require_once __DIR__ . '/../../helpers/Categorias.php';
                             <span class="badge badge-<?= $anuncio['estado'] ?>">
                                 <?= ucfirst($anuncio['estado']) ?>
                             </span>
-                            <?php if ($anuncio['destacado']): ?>
-                                <span class="badge badge-destacado"><i class="fas fa-star"></i> Destacado</span>
-                            <?php endif; ?>
                         </div>
                         <h3>
                             <a href="/kronet/public/anuncios/<?= $anuncio['id_anuncio'] ?>" style="color:inherit;">
@@ -73,9 +82,15 @@ require_once __DIR__ . '/../../helpers/Categorias.php';
                         <a class="btn btn-outline btn-sm" href="/kronet/public/anuncios/<?= $anuncio['id_anuncio'] ?>/editar">
                             <i class="fas fa-edit"></i> Editar
                         </a>
-                        <a class="btn btn-valorar btn-sm" href="/kronet/public/anuncios/<?= $anuncio['id_anuncio'] ?>/destacar">
-                            <i class="fas fa-star"></i> Destacar
-                        </a>
+                        <?php if ($anuncio['destacado']): ?>
+                            <span class="btn btn-ghost btn-sm" style="cursor:default; opacity:0.7;" title="Destacado hasta <?= date('d/m/Y', strtotime($anuncio['destacado_hasta'])) ?>">
+                                <i class="fas fa-star" style="color:#F59E0B;"></i> Activo
+                            </span>
+                        <?php else: ?>
+                            <a class="btn btn-valorar btn-sm" href="/kronet/public/anuncios/<?= $anuncio['id_anuncio'] ?>/destacar">
+                                <i class="fas fa-star"></i> Destacar
+                            </a>
+                        <?php endif; ?>
                         <button class="btn btn-danger btn-sm" onclick="eliminar(<?= $anuncio['id_anuncio'] ?>)">
                             <i class="fas fa-trash"></i> Eliminar
                         </button>

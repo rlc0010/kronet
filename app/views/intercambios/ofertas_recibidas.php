@@ -12,15 +12,16 @@ require __DIR__ . '/../partials/navbar.php';
 
 <div class="page-wrap">
 
-    <a class="back-link" href="/kronet/public/"><i class="fas fa-arrow-left"></i> Inicio</a>
-
-    <div class="tabs-container">
-        <a href="/kronet/public/intercambios/mis-intercambios" class="tab-btn">
-            <i class="fas fa-exchange-alt"></i> Mis intercambios
-        </a>
-        <a href="/kronet/public/intercambios/ofertas-recibidas" class="tab-btn active">
-            <i class="fas fa-inbox"></i> Ofertas recibidas
-        </a>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
+        <a class="back-link" style="margin-bottom:0;" href="/kronet/public/"><i class="fas fa-arrow-left"></i> Inicio</a>
+        <div class="tabs-container" style="margin-bottom:0;">
+            <a href="/kronet/public/intercambios/mis-intercambios" class="tab-btn">
+                <i class="fas fa-exchange-alt"></i> Mis intercambios
+            </a>
+            <a href="/kronet/public/intercambios/ofertas-recibidas" class="tab-btn active">
+                <i class="fas fa-inbox"></i> Ofertas recibidas
+            </a>
+        </div>
     </div>
 
     <?php if (empty($intercambios)): ?>

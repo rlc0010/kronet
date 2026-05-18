@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/../../config/conexion_db.php';
 
+/**
+ * Notificaciones internas del sistema.
+ * Se crean automáticamente desde los controladores cuando ocurre un evento
+ * relevante (mensaje nuevo, oferta recibida, valoración, cambio de suscripción...).
+ */
 class Notificacion {
 
     public static function crear($idUsuario, $tipo, $titulo, $contenido = '', $enlace = null) {
@@ -37,6 +42,7 @@ class Notificacion {
         return $stmt->execute([$idUsuario]);
     }
 
+    /** Para marcar una sola notificación, por ejemplo al hacer clic en ella. */
     public static function marcarLeida($idNotificacion, $idUsuario) {
         global $pdo;
         $stmt = $pdo->prepare("UPDATE notificaciones SET leida = 1 WHERE id_notificacion = ? AND id_usuario = ?");

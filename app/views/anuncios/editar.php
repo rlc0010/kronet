@@ -76,6 +76,26 @@ require __DIR__ . '/../partials/navbar.php';
                 <div class="pp-amount"><span id="ppAmount"><?= (int)$anuncio['precio_creditos'] ?></span> <small>créditos</small></div>
             </div>
 
+            <div class="form-group">
+                <label>Imagen del anuncio <span style="color:var(--gris-texto); font-weight:400;">(opcional)</span></label>
+                <div class="img-upload-wrap" id="imgWrap">
+                    <?php if (!empty($anuncio['imagen'])): ?>
+                        <img id="imgPreview" src="/kronet/public/uploads/anuncios/<?= htmlspecialchars($anuncio['imagen']) ?>"
+                             alt="" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                        <div class="img-upload-placeholder" id="imgPlaceholder" style="display:none;">
+                    <?php else: ?>
+                        <img id="imgPreview" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                        <div class="img-upload-placeholder" id="imgPlaceholder">
+                    <?php endif; ?>
+                            <i class="fas fa-image"></i>
+                            <span>Clic para cambiar imagen</span>
+                            <small>JPG, PNG o WebP · Máx. 2 MB</small>
+                        </div>
+                    <input type="file" name="imagen" id="imagen" accept="image/jpeg,image/png,image/webp" style="display:none;">
+                </div>
+                <span class="help-text">Si no cambias la imagen se mantiene la actual.</span>
+            </div>
+
             <div class="form-actions">
                 <a href="/kronet/public/anuncios/mis-anuncios" class="btn btn-ghost">Cancelar</a>
                 <button type="submit" class="btn btn-secondary" id="submitBtn">
@@ -108,6 +128,14 @@ function recalcularPrecio() {
 selCat.addEventListener('change', recalcularPrecio);
 inDur.addEventListener('input', recalcularPrecio);
 recalcularPrecio();
+
+document.getElementById('imgWrap').addEventListener('click', () => document.getElementById('imagen').click());
+document.getElementById('imagen').addEventListener('change', function() {
+    if (!this.files[0]) return;
+    document.getElementById('imgPreview').src = URL.createObjectURL(this.files[0]);
+    document.getElementById('imgPreview').style.display = 'block';
+    document.getElementById('imgPlaceholder').style.display = 'none';
+});
 
 document.getElementById('formEditar').addEventListener('submit', async function(e) {
     e.preventDefault();

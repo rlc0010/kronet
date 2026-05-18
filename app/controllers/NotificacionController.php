@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../models/Notificacion.php';
 
+/**
+ * Lista y marca como leídas las notificaciones del usuario logueado.
+ */
 class NotificacionController {
 
     public function listado() {

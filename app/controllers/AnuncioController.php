@@ -5,9 +5,14 @@ require_once __DIR__ . '/../models/Suscripcion.php';
 require_once __DIR__ . '/../models/Pago.php';
 require_once __DIR__ . '/../models/Denuncia.php';
 require_once __DIR__ . '/../models/Notificacion.php';
+require_once __DIR__ . '/../models/Bloqueo.php';
 require_once __DIR__ . '/../helpers/Categorias.php';
 require_once __DIR__ . '/../helpers/PrecioCalculator.php';
 
+/**
+ * Gestiona el ciclo de vida de los anuncios: publicación, edición,
+ * búsqueda pública, destacado, denuncia y subida de imagen.
+ */
 class AnuncioController {
 
     public function showCrear() {
@@ -51,7 +56,8 @@ class AnuncioController {
             return;
         }
 
-        $id = Anuncio::create($_SESSION['id_usuario'], $titulo, $descripcion, $tipo, $categoria, $duracion, $plazas);
+        $imagen = $this->procesarImagen();
+        $id = Anuncio::create($_SESSION['id_usuario'], $titulo, $descripcion, $tipo, $categoria, $duracion, $plazas, $imagen);
         echo json_encode(['ok' => true, 'msg' => 'Anuncio publicado correctamente', 'id' => $id]);
     }
 
@@ -100,6 +106,14 @@ class AnuncioController {
         }
 
         Anuncio::update($id, $titulo, $descripcion, $tipo, $categoria, $duracion, $plazas);
+        $imagen = $this->procesarImagen();
+        if ($imagen !== null) {
+            // Borrar imagen anterior si existe
+            if (!empty($anuncio['imagen'])) {
+                @unlink(__DIR__ . '/../../public/uploads/anuncios/' . $anuncio['imagen']);
+            }
+            Anuncio::updateImagen($id, $imagen);
+        }
         echo json_encode(['ok' => true, 'msg' => 'Anuncio actualizado']);
     }
 
@@ -129,9 +143,12 @@ class AnuncioController {
         $perPage  = 12;
         $offset   = ($pageNum - 1) * $perPage;
 
-        $total      = Anuncio::countSearch($busqueda, $tipo, $cat);
+        $excluir    = isset($_SESSION['id_usuario'])
+                      ? Bloqueo::listarIdsBloqueo((int)$_SESSION['id_usuario'])
+                      : [];
+        $total      = Anuncio::countSearch($busqueda, $tipo, $cat, $excluir);
         $totalPages = (int)ceil($total / $perPage);
-        $anuncios   = Anuncio::search($busqueda, $tipo, $cat, $perPage, $offset);
+        $anuncios   = Anuncio::search($busqueda, $tipo, $cat, $perPage, $offset, $excluir);
 
         $categorias = Categorias::todas();
         require __DIR__ . '/../views/anuncios/buscar.php';
@@ -218,6 +235,30 @@ class AnuncioController {
         }
 
         echo json_encode(['ok' => false, 'msg' => 'Operación no reconocida']);
+    }
+
+    /** Valida y mueve la imagen subida al directorio de uploads. Devuelve el nombre del fichero o null si no se subió ninguna. */
+    private function procesarImagen() {
+        if (empty($_FILES['imagen']['name']) || $_FILES['imagen']['error'] === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+        if ($_FILES['imagen']['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+        $ext = strtolower(pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+            return null;
+        }
+        if ($_FILES['imagen']['size'] > 2 * 1024 * 1024) {
+            return null;
+        }
+        $dir = __DIR__ . '/../../public/uploads/anuncios/';
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        $nombre = uniqid('img_') . '.' . $ext;
+        if (move_uploaded_file($_FILES['imagen']['tmp_name'], $dir . $nombre)) {
+            return $nombre;
+        }
+        return null;
     }
 
     public function denunciar($id) {

@@ -14,6 +14,7 @@ class Intercambio {
      *
      * Si tipo_anuncio == 'oferta'  → el dueño OFRECE un servicio: paga
      *   el solicitante, cobra el ofertante.
+     * 
      * Si tipo_anuncio == 'demanda' → el dueño PIDE un servicio: paga
      *   el ofertante (porque es quien recibe la ayuda), cobra el
      *   solicitante (porque es quien hace el trabajo).
@@ -158,8 +159,7 @@ class Intercambio {
     }
 
     /**
-     * ¿Existe ya un intercambio activo (pendiente o confirmado) entre estos
-     * dos usuarios para el mismo anuncio? Sirve para evitar duplicados.
+     * Para conocer si ya exixte un intercambio activo entre los dos usuarios para el mismo anuncio y evitar duplicados.
      */
     public static function existeActivo($idAnuncio, $idSolicitante) {
         global $pdo;

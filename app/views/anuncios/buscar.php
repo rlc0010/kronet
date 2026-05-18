@@ -71,15 +71,22 @@ $miId        = $_SESSION['id_usuario'] ?? 0;
                 $esMio = $miId && $anuncio['id_usuario'] == $miId;
             ?>
                 <div class="service-card" id="anuncio-<?= $anuncio['id_anuncio'] ?>">
+                    <div class="card-img cat-<?= htmlspecialchars($catSlug) ?>">
+                        <?php if (!empty($anuncio['imagen'])): ?>
+                            <img src="/kronet/public/uploads/anuncios/<?= htmlspecialchars($anuncio['imagen']) ?>" alt="<?= htmlspecialchars($anuncio['titulo']) ?>">
+                        <?php else: ?>
+                            <i class="<?= $catIcon ?>"></i>
+                        <?php endif; ?>
+                        <?php if ($anuncio['destacado']): ?>
+                            <span class="badge-img-destacado"><i class="fas fa-star"></i> Destacado</span>
+                        <?php endif; ?>
+                    </div>
                     <div class="card-body">
                         <div class="tags-row">
                             <span class="badge <?= $anuncio['tipo_anuncio'] === 'oferta' ? 'badge-oferta' : 'badge-demanda' ?>">
                                 <i class="fas <?= $anuncio['tipo_anuncio'] === 'oferta' ? 'fa-hand-holding-heart' : 'fa-hands-helping' ?>"></i>
                                 <?= ucfirst($anuncio['tipo_anuncio']) ?>
                             </span>
-                            <?php if ($anuncio['destacado']): ?>
-                                <span class="badge badge-destacado"><i class="fas fa-star"></i> Destacado</span>
-                            <?php endif; ?>
                         </div>
                         <h3>
                             <a href="/kronet/public/anuncios/<?= $anuncio['id_anuncio'] ?>" style="color:inherit;">

@@ -6,7 +6,12 @@ require_once __DIR__ . '/../models/Valoracion.php';
 require_once __DIR__ . '/../models/Suscripcion.php';
 require_once __DIR__ . '/../models/Contacto.php';
 require_once __DIR__ . '/../models/Bloqueo.php';
+require_once __DIR__ . '/../models/Notificacion.php';
 
+/**
+ * Muestra y edita el perfil del usuario logueado, y gestiona la vista
+ * pública del perfil de otros usuarios con respeto a bloqueos activos.
+ */
 class PerfilController {
 
     public function verPerfil() {
@@ -40,14 +45,20 @@ class PerfilController {
             return;
         }
 
-        $media        = Valoracion::mediaUsuario($id);
-        $anuncios     = Anuncio::findByUsuario($id);
-        // Filtrar a sólo activos (en perfil ajeno)
-        $anuncios     = array_values(array_filter($anuncios, fn($a) => $a['estado'] !== 'cancelado'));
-        $valoraciones = Valoracion::findByDestinatario($id);
-        $yaValorado   = Valoracion::yaValorado($miId, $id);
-        $esContacto   = Contacto::esContacto($miId, $id);
-        $estaBloqueado= Bloqueo::estaBloqueado($miId, $id);
+        $media         = Valoracion::mediaUsuario($id);
+        $yaValorado    = Valoracion::yaValorado($miId, $id);
+        $esContacto    = Contacto::esContacto($miId, $id);
+        $estaBloqueado = Bloqueo::estaBloqueado($miId, $id);   // yo bloqueé a este usuario
+        $meHaBloqueado = Bloqueo::estaBloqueado($id, $miId);   // este usuario me bloqueó a mí
+
+        // Si el perfil visitado me ha bloqueado, mostramos vista restringida
+        $anuncios     = [];
+        $valoraciones = [];
+        if (!$meHaBloqueado) {
+            $anuncios     = Anuncio::findByUsuario($id);
+            $anuncios     = array_values(array_filter($anuncios, fn($a) => $a['estado'] !== 'cancelado'));
+            $valoraciones = Valoracion::findByDestinatario($id);
+        }
 
         require __DIR__ . '/../views/perfil/ajeno.php';
     }

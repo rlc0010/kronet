@@ -3,6 +3,10 @@ require_once __DIR__ . '/../models/Valoracion.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Notificacion.php';
 
+/**
+ * Permite crear valoraciones y ver el historial propio.
+ * Un usuario solo puede valorar a otro una vez; tampoco puede valorarse a sí mismo.
+ */
 class ValoracionController {
 
     public function showCrear() {

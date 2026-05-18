@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../../config/conexion_db.php';
 
+/**
+ * Modelo de usuario. Cubre autenticación, creación de cuenta,
+ * actualización de perfil y cambio de tier (registrado / suscrito).
+ */
 class User {
 
     public static function findByEmail($email) {
@@ -17,6 +21,7 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /** Registra un usuario nuevo con 5 créditos de bienvenida y cuenta activa. */
     public static function create($nombre, $email, $password) {
         global $pdo;
         $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -48,6 +53,7 @@ class User {
         return $stmt->execute([$id]);
     }
 
+    /** Devuelve al usuario al tier base cuando cancela la suscripción. */
     public static function marcarComoRegistrado($id) {
         global $pdo;
         $stmt = $pdo->prepare("UPDATE usuarios SET tipo_usuario = 'registrado' WHERE id_usuario = ?");

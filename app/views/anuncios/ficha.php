@@ -58,7 +58,7 @@ $anonimo  = !$miId;
 
             <h2 style="margin-bottom:12px;"><?= htmlspecialchars($anuncio['titulo']) ?></h2>
 
-            <p style="line-height:1.6; color:rgba(15,28,63,0.8); white-space:pre-wrap;"><?= htmlspecialchars($anuncio['descripcion']) ?></p>
+            <p style="line-height:1.6; color:rgba(15,28,63,0.8); white-space:pre-wrap; overflow-wrap:break-word; word-break:break-word;"><?= htmlspecialchars($anuncio['descripcion']) ?></p>
 
             <div class="tags-row" style="margin-top:18px;">
                 <span class="tag tag-cat"><i class="<?= $catIcon ?>"></i> <?= htmlspecialchars($catNombre) ?></span>

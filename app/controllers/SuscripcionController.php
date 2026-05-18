@@ -4,6 +4,11 @@ require_once __DIR__ . '/../models/Pago.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Notificacion.php';
 
+/**
+ * Gestiona la suscripción Premium: alta, cancelación y pantalla informativa.
+ * El pago es ficticio (demo), pero los efectos en BD son reales: cambia el
+ * tipo_usuario y habilita el destacado gratuito semanal.
+ */
 class SuscripcionController {
 
     public function show() {

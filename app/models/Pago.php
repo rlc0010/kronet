@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/../../config/conexion_db.php';
 
+/**
+ * Registro de pagos simulados (no hay pasarela real).
+ * Guarda el historial de transacciones ficticiamente para tener trazabilidad
+ * en la demo: suscripciones y destacados de anuncios.
+ */
 class Pago {
 
     public const PRECIO_DESTACADO = 2.50;

@@ -3,6 +3,10 @@ require_once __DIR__ . '/../models/Contacto.php';
 require_once __DIR__ . '/../models/Bloqueo.php';
 require_once __DIR__ . '/../models/User.php';
 
+/**
+ * Operaciones de relación entre usuarios: agregar/quitar contactos y bloquear/desbloquear.
+ * Todos los endpoints son POST y devuelven JSON para consumirse desde la vista.
+ */
 class UsuariosController {
 
     public function agregar() {

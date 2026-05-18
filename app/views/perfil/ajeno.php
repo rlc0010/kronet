@@ -17,6 +17,12 @@ require_once __DIR__ . '/../../helpers/Categorias.php';
 
     <?php if (isset($error)): ?>
         <div class="flash flash-error"><i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($error) ?></div>
+    <?php elseif ($meHaBloqueado): ?>
+        <div class="blocked-wall">
+            <div class="bw-avatar"><?= strtoupper(substr($usuario['nombre'], 0, 1)) ?></div>
+            <h2><?= htmlspecialchars($usuario['nombre']) ?></h2>
+            <p>Este usuario ha restringido el acceso a su perfil.<br>No puedes ver su contenido ni contactar con él.</p>
+        </div>
     <?php else: ?>
 
     <div class="profile-layout">

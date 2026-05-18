@@ -47,7 +47,8 @@ if (!function_exists('navItem')) {
         <?php if ($navUser): ?>
             <?php navItem($navActive, 'publicar',  '/kronet/public/anuncios/crear',                'fas fa-plus-circle',  'Publicar'); ?>
             <?php navItem($navActive, 'servicios', '/kronet/public/intercambios/mis-intercambios', 'fas fa-exchange-alt', 'Mis Servicios'); ?>
-            <?php navItem($navActive, 'mensajes',  '/kronet/public/mensajes',                      'fas fa-envelope',     'Mensajes', $navUnreadMsg); ?>
+            <?php navItem($navActive, 'mensajes',  '/kronet/public/mensajes',  'fas fa-envelope',      'Mensajes', $navUnreadMsg); ?>
+            <?php navItem($navActive, 'contactos', '/kronet/public/contactos', 'fas fa-user-friends',  'Contactos'); ?>
         <?php endif; ?>
     </ul>
 

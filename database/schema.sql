@@ -54,6 +54,7 @@ CREATE TABLE anuncios (
     estado              VARCHAR(50)             DEFAULT 'activo',      -- 'activo' | 'completo' | 'cancelado'
     destacado           TINYINT(1)              DEFAULT 0,
     destacado_hasta     DATETIME                DEFAULT NULL,
+    imagen              VARCHAR(255)            DEFAULT NULL,
 
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
         ON DELETE CASCADE

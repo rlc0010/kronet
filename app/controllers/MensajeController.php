@@ -5,6 +5,11 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Bloqueo.php';
 require_once __DIR__ . '/../models/Notificacion.php';
 
+/**
+ * Gestiona el sistema de mensajería por anuncio.
+ * Cada conversación está ligada a un anuncio concreto y a un par de usuarios,
+ * por lo que no existe mensajería directa fuera del contexto de un anuncio.
+ */
 class MensajeController {
 
     /**
@@ -85,8 +90,8 @@ class MensajeController {
             return;
         }
 
-        // Comprobar bloqueos
-        if (Bloqueo::estaBloqueado($idReceptor, $miId)) {
+        // Comprobar bloqueos en ambas direcciones
+        if (Bloqueo::hayBloqueo($miId, $idReceptor)) {
             echo json_encode(['ok' => false, 'msg' => 'No puedes enviar mensajes a este usuario']);
             return;
         }

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../models/Intercambio.php';
 require_once __DIR__ . '/../models/Anuncio.php';
 require_once __DIR__ . '/../models/Notificacion.php';
+require_once __DIR__ . '/../models/Bloqueo.php';
 
 class IntercambioController {
 
@@ -40,6 +41,12 @@ class IntercambioController {
         }
         if (Intercambio::existeActivo($idAnuncio, $idSolicitante)) {
             echo json_encode(['ok' => false, 'msg' => 'Ya tienes una solicitud activa para este anuncio']);
+            return;
+        }
+
+        $idOfertanteCheck = (int)$anuncio['id_usuario'];
+        if (Bloqueo::hayBloqueo($idSolicitante, $idOfertanteCheck)) {
+            echo json_encode(['ok' => false, 'msg' => 'No puedes solicitar este anuncio']);
             return;
         }
 
