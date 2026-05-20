@@ -1,38 +1,31 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="/kronet/public/assets/images/logo.png">
-    <title>Iniciar sesión - Kronet</title>
-    <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
-</head>
-<body>
+<?php $pageTitle = 'Iniciar sesión'; require __DIR__ . '/../partials/head.php'; ?>
 
 <main class="auth-main">
     <div class="auth-card">
 
         <div class="auth-logo-div-icon">
-            <img src="/kronet/public/assets/images/logo.png" alt="KRONET" class="auth-logo-icon">
+            <img src="/kronet/public/assets/images/logo.png" alt="Kronet" class="auth-logo-icon">
         </div>
         <h1 class="auth-title">Bienvenido a Kronet</h1>
 
-        <p id="errorMsg" class="flash flash-error" style="display:none;"></p>
+        <div id="errorMsg" class="flash flash-error" style="display:none;"></div>
 
-        <form id="loginForm" class="auth-form">
+        <form id="loginForm" class="auth-form" method="post" novalidate>
 
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" name="email" id="email" placeholder="tu@email.com" required>
+                <input type="email" name="email" id="email" placeholder="tu@email.com" autocomplete="email" required>
+                <div id="err-email" class="field-error" style="display:none;"></div>
             </div>
 
             <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" name="password" id="password" placeholder="••••••••" required>
+                <input type="password" name="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+                <div id="err-password" class="field-error" style="display:none;"></div>
             </div>
 
             <div class="auth-actions">
-                <button type="submit" class="btn btn-primary btn-block">
+                <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
                     <i class="fas fa-sign-in-alt"></i> Entrar
                 </button>
             </div>
@@ -46,6 +39,8 @@
     </div>
 </main>
 
+<div class="toast-container" id="toastContainer"></div>
+<script src="/kronet/public/assets/js/kronet.js"></script>
 <script src="/kronet/public/assets/js/login.js"></script>
 </body>
 </html>

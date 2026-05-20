@@ -1,66 +1,102 @@
 <?php
-require_once __DIR__ . '/../../config/conexion_db.php';
 require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../models/Intercambio.php';
 require_once __DIR__ . '/../models/Anuncio.php';
+require_once __DIR__ . '/../models/Intercambio.php';
 require_once __DIR__ . '/../models/Valoracion.php';
+require_once __DIR__ . '/../models/Suscripcion.php';
+require_once __DIR__ . '/../models/Contacto.php';
+require_once __DIR__ . '/../models/Bloqueo.php';
+require_once __DIR__ . '/../models/Notificacion.php';
 
+/**
+ * Muestra y edita el perfil del usuario logueado, y gestiona la vista
+ * pública del perfil de otros usuarios con respeto a bloqueos activos.
+ */
 class PerfilController {
 
-    // Perfil propio del usuario logueado
     public function verPerfil() {
-        if (!isset($_SESSION['id_usuario'])) {
-            $error = "Debes iniciar sesión";
-            $usuario = [];
-            $historial = [];
-            require __DIR__ . '/../views/perfil/verPerfil.php';
-            return;
-        }
-
-        $idUsuario = $_SESSION['id_usuario'];
-        $usuario   = User::findById($idUsuario);
-        $historial = Intercambio::findByUsuario($idUsuario);
-        $media     = Valoracion::mediaUsuario($idUsuario);
-
+        $miId   = (int)$_SESSION['id_usuario'];
+        $usuario = User::findById($miId);
         if (!$usuario) {
-            $error = "No se han podido cargar los datos";
+            header("Location: /kronet/public/logout"); exit;
         }
 
-        $usuario   = $usuario  ?? [];
-        $historial = $historial ?? [];
+        $stats         = Intercambio::statsPorUsuario($miId);
+        $media         = Valoracion::mediaUsuario($miId);
+        $historial     = Intercambio::findByUsuario($miId);
+        $totalAnuncios = Anuncio::contarPorUsuario($miId);
+        $suscripcion   = Suscripcion::activaPorUsuario($miId);
 
         require __DIR__ . '/../views/perfil/verPerfil.php';
     }
 
-    // Perfil ajeno: ver el perfil de otro usuario
-    public function verPerfilAjeno($idUsuario) {
-        $idUsuario = (int)$idUsuario;
+    public function verPerfilAjeno($id) {
+        $id = (int)$id;
+        $miId = (int)$_SESSION['id_usuario'];
 
-        // Si es tu propio perfil, redirigir
-        if (isset($_SESSION['id_usuario']) && $_SESSION['id_usuario'] == $idUsuario) {
-            header("Location: /kronet/public/perfil");
-            exit;
+        if ($id === $miId) {
+            header("Location: /kronet/public/perfil"); exit;
         }
 
-        $usuario      = User::findById($idUsuario);
-        $anuncios     = Anuncio::findByUsuario($idUsuario);
-        $valoraciones = Valoracion::findByDestinatario($idUsuario);
-        $media        = Valoracion::mediaUsuario($idUsuario);
-        $yaValorado   = false;
-
+        $usuario = User::findById($id);
         if (!$usuario) {
-            $error = "Usuario no encontrado";
+            $error = 'Usuario no encontrado';
             require __DIR__ . '/../views/perfil/ajeno.php';
             return;
         }
 
-        // Solo anuncios activos
-        $anuncios = array_values(array_filter($anuncios ?? [], fn($a) => $a['estado'] === 'activo'));
+        $media         = Valoracion::mediaUsuario($id);
+        $yaValorado    = Valoracion::yaValorado($miId, $id);
+        $esContacto    = Contacto::esContacto($miId, $id);
+        $estaBloqueado = Bloqueo::estaBloqueado($miId, $id);   // yo bloqueé a este usuario
+        $meHaBloqueado = Bloqueo::estaBloqueado($id, $miId);   // este usuario me bloqueó a mí
 
-        if (isset($_SESSION['id_usuario'])) {
-            $yaValorado = Valoracion::yaValorado($_SESSION['id_usuario'], $idUsuario);
+        // Si el perfil visitado me ha bloqueado, mostramos vista restringida
+        $anuncios     = [];
+        $valoraciones = [];
+        if (!$meHaBloqueado) {
+            $anuncios     = Anuncio::findByUsuario($id);
+            $anuncios     = array_values(array_filter($anuncios, fn($a) => $a['estado'] !== 'cancelado'));
+            $valoraciones = Valoracion::findByDestinatario($id);
         }
 
         require __DIR__ . '/../views/perfil/ajeno.php';
+    }
+
+    public function editarPerfil() {
+        header('Content-Type: application/json');
+
+        $miId = (int)$_SESSION['id_usuario'];
+        $nombre = trim($_POST['nombre'] ?? '');
+        $email  = trim($_POST['email']  ?? '');
+        $desc   = trim($_POST['descripcion'] ?? '');
+
+        if ($nombre === '' || $email === '') {
+            echo json_encode(['ok' => false, 'msg' => 'Nombre y email obligatorios']);
+            return;
+        }
+        if (mb_strlen($nombre) < 2 || mb_strlen($nombre) > 100) {
+            echo json_encode(['ok' => false, 'msg' => 'Nombre con longitud no válida']);
+            return;
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['ok' => false, 'msg' => 'Email con formato no válido']);
+            return;
+        }
+
+        // Evitar colisiones de email
+        $otro = User::findByEmail($email);
+        if ($otro && (int)$otro['id_usuario'] !== $miId) {
+            echo json_encode(['ok' => false, 'msg' => 'Ese email ya está en uso']);
+            return;
+        }
+        if (mb_strlen($desc) > 1000) {
+            echo json_encode(['ok' => false, 'msg' => 'Descripción demasiado larga']);
+            return;
+        }
+
+        $ok = User::updatePerfil($miId, $nombre, $email, $desc);
+        $_SESSION['nombre'] = $nombre;
+        echo json_encode(['ok' => (bool)$ok, 'msg' => $ok ? 'Perfil actualizado' : 'No se pudo actualizar']);
     }
 }

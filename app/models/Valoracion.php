@@ -1,9 +1,13 @@
 <?php
 require_once __DIR__ . '/../../config/conexion_db.php';
 
+/**
+ * Valoraciones de usuario a usuario (1–5 estrellas).
+ * Solo se permite una valoración por par autor→destino,
+ * lo que obliga a que sea reflexionada y no se repita.
+ */
 class Valoracion {
 
-    // Crea una nueva valoración entre usuarios tras un intercambio
     public static function crear($idAutor, $idDestino, $puntuacion, $comentario) {
         global $pdo;
         $stmt = $pdo->prepare("
@@ -11,15 +15,9 @@ class Valoracion {
             (id_usuario_autor, id_usuario_destino, puntuacion, comentario, fecha)
             VALUES (?, ?, ?, ?, NOW())
         ");
-        return $stmt->execute([
-            $idAutor,
-            $idDestino,
-            $puntuacion,
-            $comentario
-        ]);
+        return $stmt->execute([$idAutor, $idDestino, $puntuacion, $comentario]);
     }
 
-    // Obtiene todas las valoraciones recibidas por un usuario
     public static function findByDestinatario($idUsuario) {
         global $pdo;
         $stmt = $pdo->prepare("
@@ -33,7 +31,6 @@ class Valoracion {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Calcula la media de puntuación de un usuario
     public static function mediaUsuario($idUsuario) {
         global $pdo;
         $stmt = $pdo->prepare("
@@ -42,10 +39,12 @@ class Valoracion {
             WHERE id_usuario_destino = ?
         ");
         $stmt->execute([$idUsuario]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$res) return ['media' => 0, 'total' => 0];
+        return ['media' => (float)($res['media'] ?? 0), 'total' => (int)($res['total'] ?? 0)];
     }
 
-    // Comprueba si ya existe una valoración del autor hacia el destino
+    /** Para evitar que un mismo usuario valore más de una vez al mismo destinatario. */
     public static function yaValorado($idAutor, $idDestino) {
         global $pdo;
         $stmt = $pdo->prepare("

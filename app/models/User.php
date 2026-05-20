@@ -1,5 +1,10 @@
 <?php
+require_once __DIR__ . '/../../config/conexion_db.php';
 
+/**
+ * Modelo de usuario. Cubre autenticación, creación de cuenta,
+ * actualización de perfil y cambio de tier (registrado / suscrito).
+ */
 class User {
 
     public static function findByEmail($email) {
@@ -10,36 +15,55 @@ class User {
     }
 
     public static function findById($id) {
-    global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE id_usuario = ?");
-    $stmt->execute([$id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE id_usuario = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /** Registra un usuario nuevo con 5 créditos de bienvenida y cuenta activa. */
     public static function create($nombre, $email, $password) {
         global $pdo;
-
         $hash = password_hash($password, PASSWORD_DEFAULT);
-
         $stmt = $pdo->prepare("
-            INSERT INTO usuarios 
-            (nombre, email, contrasenia_hash, fecha_registro, estado_cuenta) 
-            VALUES (?, ?, ?, NOW(), 'activa')
+            INSERT INTO usuarios
+            (nombre, email, contrasenia_hash, fecha_registro, estado_cuenta, tipo_usuario, saldo_monedas)
+            VALUES (?, ?, ?, NOW(), 'activa', 'registrado', 5)
         ");
-
         return $stmt->execute([$nombre, $email, $hash]);
     }
 
-   public static function updatePerfil($id, $nombre, $email) {
-    global $pdo;
+    public static function updatePerfil($id, $nombre, $email, $descripcion = null) {
+        global $pdo;
+        $stmt = $pdo->prepare("
+            UPDATE usuarios
+            SET nombre = ?, email = ?, descripcion = ?
+            WHERE id_usuario = ?
+        ");
+        return $stmt->execute([$nombre, $email, $descripcion, $id]);
+    }
 
-    $stmt = $pdo->prepare("
-        UPDATE usuarios
-        SET nombre = ?, email = ?
-        WHERE id_usuario = ?
-    ");
+    /**
+     * Sube de 'registrado' a 'suscrito' (lo llama el controlador de
+     * suscripciones tras un pago correcto).
+     */
+    public static function marcarComoSuscrito($id) {
+        global $pdo;
+        $stmt = $pdo->prepare("UPDATE usuarios SET tipo_usuario = 'suscrito' WHERE id_usuario = ?");
+        return $stmt->execute([$id]);
+    }
 
-    return $stmt->execute([$nombre, $email, $id]);
-}
- 
+    /** Devuelve al usuario al tier base cuando cancela la suscripción. */
+    public static function marcarComoRegistrado($id) {
+        global $pdo;
+        $stmt = $pdo->prepare("UPDATE usuarios SET tipo_usuario = 'registrado' WHERE id_usuario = ?");
+        return $stmt->execute([$id]);
+    }
+
+    public static function esSuscrito($id) {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT tipo_usuario FROM usuarios WHERE id_usuario = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetchColumn() === 'suscrito';
+    }
 }

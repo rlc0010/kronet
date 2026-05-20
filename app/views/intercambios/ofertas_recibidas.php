@@ -1,26 +1,27 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="/kronet/public/assets/images/logo.png">
-    <title>Ofertas recibidas - Kronet</title>
-    <link rel="stylesheet" href="/kronet/public/assets/css/kronet.css">
-</head>
-<body>
+<?php
+$pageTitle = 'Ofertas recibidas';
+$navActive = 'servicios';
+require __DIR__ . '/../partials/head.php';
+require __DIR__ . '/../partials/navbar.php';
+?>
+
+<section class="hero-section hero-compact">
+    <h1>Ofertas recibidas</h1>
+    <p>Solicitudes pendientes de tu respuesta</p>
+</section>
 
 <div class="page-wrap">
 
-    <a class="back-link" href="/kronet/public/"><i class="fas fa-arrow-left"></i> Inicio</a>
-
-    <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
-        <div>
-            <h1><i class="fas fa-inbox"></i> Ofertas recibidas</h1>
-            <p>Solicitudes pendientes de tu respuesta</p>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
+        <a class="back-link" style="margin-bottom:0;" href="/kronet/public/"><i class="fas fa-arrow-left"></i> Inicio</a>
+        <div class="tabs-container" style="margin-bottom:0;">
+            <a href="/kronet/public/intercambios/mis-intercambios" class="tab-btn">
+                <i class="fas fa-exchange-alt"></i> Mis intercambios
+            </a>
+            <a href="/kronet/public/intercambios/ofertas-recibidas" class="tab-btn active">
+                <i class="fas fa-inbox"></i> Ofertas recibidas
+            </a>
         </div>
-        <a href="/kronet/public/intercambios/mis-intercambios" class="btn btn-outline btn-sm">
-            <i class="fas fa-list"></i> Mis intercambios
-        </a>
     </div>
 
     <?php if (empty($intercambios)): ?>
@@ -30,26 +31,44 @@
         </div>
     <?php else: ?>
         <div class="intercambios-list">
-            <?php foreach ($intercambios as $intercambio): ?>
-                <div class="oferta-card" id="intercambio-<?= $intercambio['id_intercambio'] ?>">
+            <?php foreach ($intercambios as $i):
+                $tipoAnuncio = $i['tipo_anuncio'] ?? 'oferta';
+            ?>
+                <div class="oferta-card" id="intercambio-<?= (int)$i['id_intercambio'] ?>">
                     <div class="of-head">
                         <div>
-                            <h3><?= htmlspecialchars($intercambio['titulo_anuncio']) ?></h3>
+                            <h3>
+                                <?php if ($i['id_anuncio']): ?>
+                                    <a href="/kronet/public/anuncios/<?= (int)$i['id_anuncio'] ?>" style="color:inherit;">
+                                        <?= htmlspecialchars($i['titulo_anuncio']) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <?= htmlspecialchars($i['titulo_anuncio']) ?>
+                                <?php endif; ?>
+                            </h3>
                             <div class="of-info">
-                                <span><i class="fas fa-user"></i> <?= htmlspecialchars($intercambio['nombre_ofertante']) ?></span>
-                                <span><i class="fas fa-coins"></i> <?= htmlspecialchars($intercambio['monedas_intercambio']) ?> créditos</span>
-                                <span><i class="fas fa-calendar"></i> <?= htmlspecialchars($intercambio['fecha_inicio']) ?></span>
+                                <span><i class="fas fa-user"></i>
+                                    <a href="/kronet/public/perfil/<?= (int)$i['id_usuario_solicitante'] ?>"><?= htmlspecialchars($i['nombre_solicitante']) ?></a>
+                                </span>
+                                <span><i class="fas fa-coins"></i> <?= (int)$i['monedas_intercambio'] ?> créditos</span>
+                                <span><i class="fas fa-calendar"></i> <?= htmlspecialchars($i['fecha_inicio']) ?></span>
+                                <span class="badge <?= $tipoAnuncio === 'oferta' ? 'badge-oferta' : 'badge-demanda' ?>"><?= ucfirst($tipoAnuncio) ?></span>
                             </div>
                         </div>
                         <span class="badge badge-pendiente">Pendiente</span>
                     </div>
                     <div class="of-actions">
-                        <button class="btn btn-primary btn-sm" onclick="gestionarOferta(<?= $intercambio['id_intercambio'] ?>, 'aceptar', this)">
+                        <button class="btn btn-primary btn-sm" onclick="gestionar(<?= (int)$i['id_intercambio'] ?>, 'aceptar')">
                             <i class="fas fa-check"></i> Aceptar
                         </button>
-                        <button class="btn btn-danger btn-sm" onclick="gestionarOferta(<?= $intercambio['id_intercambio'] ?>, 'rechazar', this)">
+                        <button class="btn btn-danger btn-sm" onclick="gestionar(<?= (int)$i['id_intercambio'] ?>, 'rechazar')">
                             <i class="fas fa-times"></i> Rechazar
                         </button>
+                        <?php if ($i['id_anuncio']): ?>
+                            <a class="btn btn-outline btn-sm" href="/kronet/public/mensajes?anuncio=<?= (int)$i['id_anuncio'] ?>&usuario=<?= (int)$i['id_usuario_solicitante'] ?>">
+                                <i class="fas fa-comments"></i> Chat
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -59,17 +78,22 @@
 </div>
 
 <script>
-    function gestionarOferta(id, accion, btn) {
-        fetch('/kronet/public/intercambios/' + id + '/' + accion, { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    const div = document.getElementById('intercambio-' + id);
-                    div.innerHTML = '<p class="flash flash-ok"><i class="fas fa-check-circle"></i> ' + data.msg + '</p>';
-                } else { alert('Error: ' + data.msg); }
-            });
+async function gestionar(id, accion) {
+    if (accion === 'aceptar') {
+        if (!confirmar('Al aceptar se transferirán los créditos. ¿Confirmar?')) return;
+    } else {
+        if (!confirmar('¿Rechazar esta solicitud?')) return;
     }
+    const data = await apiPost('/kronet/public/intercambios/' + id + '/' + accion, {});
+    showToast(data.msg, data.ok ? 'ok' : 'error');
+    if (data.ok) {
+        const card = document.getElementById('intercambio-' + id);
+        if (card) {
+            card.style.opacity = '0.5';
+            setTimeout(() => card.remove(), 400);
+        }
+    }
+}
 </script>
 
-</body>
-</html>
+<?php require __DIR__ . '/../partials/footer.php'; ?>
