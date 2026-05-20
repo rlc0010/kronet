@@ -32,33 +32,6 @@ routes/
   web.php             Definición de rutas
 ```
 
-## Novedades del Sprint 4
-
-### Funcionalidades nuevas (cumplen RF pendientes)
-- **RF.3 / RF.9** — Suscripción Premium (5€/mes) con elección de método de pago (tarjeta, PayPal, Bizum).
-- **RF.7 / RF.8** — Destacar anuncios: gratis (1/semana para suscritos) o pago puntual de 2,5€.
-- **RF.21** — Agregar usuario a contactos.
-- **RF.22** — Bloquear usuario.
-- **RF.23** — Denunciar anuncios.
-- Notificaciones internas para mensajes, ofertas, intercambios y valoraciones.
-- Paginación en búsqueda de anuncios.
-- Filtros por categoría/tipo en búsqueda.
-- Dashboard con estadísticas en inicio y perfil.
-
-### Mejoras de UX
-- **Estilo unificado en todas las páginas** con la misma estética del hero (banner azul con gradiente).
-- **Navbar consistente en todas las pantallas** con badges de no leídos.
-- **Chat estilo Wallapop**: una conversación por anuncio entre ofertante y solicitante (no mensajes sueltos).
-- **Categorías como desplegable**: 16 categorías predefinidas, mismas en crear y en filtrar.
-- **Plazas por anuncio**: cada anuncio define cuántas personas pueden apuntarse; cuando se llena pasa a "completo".
-- **Algoritmo de precio en créditos**: PrecioCalculator aplica un multiplicador por categoría (reparaciones 2.5×, tecnología 2×, hogar 1×, etc.) sobre la duración. Una hora de fontanería ya no cuesta lo mismo que una hora de paseo de perros.
-- **Dirección de créditos correcta según tipo de anuncio**: si el anuncio es una OFERTA, paga el solicitante; si es DEMANDA, paga el ofertante (el que pide ayuda).
-- **Validaciones de contraseña**: mínimo 8 caracteres, una mayúscula, una minúscula y un número, con feedback en vivo.
-- **Toasts y mensajes de error en login/registro** cuando faltan campos o son incorrectos.
-- **Tras publicar anuncio**, redirige automáticamente a "mis anuncios" en vez de quedarse abajo.
-- **Flujo de navegación coherente**: los "volver" llevan a la página lógica anterior.
-- **Responsive**: navbar colapsable, grids adaptables.
-
 ### Algoritmo de precio (PrecioCalculator)
 La fórmula es `créditos = round(duración_horas × multiplicador_categoría)` con un mínimo de 1.
 
